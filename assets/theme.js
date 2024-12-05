@@ -1,25 +1,37 @@
 export default {
-  // Feel free to customize these colors!
   colors: {
-    backgroundPrimary: "#232323",
-    backgroundSecondary: "#121212",
-
-    textPrimary: "#FFFFFF",
-    textSecondary: "#B4B4B4",
-    textTertiary: "#6C6C6C",
-    textHighlighted: "#FF5C00",
-
-    iconPrimary: "#FFFFFF",
-    iconSecondary: "#B4B4B4",
-    iconHighlighted: "#FF5C00",
-
-    tabBarActive: "#FFFFFF",
-    tabBarBorder: "#747474",
+    // Primary Colors
+    coral: "#FF6B6B", // Coral color for highlights, buttons, and active states
+    blue: "#87CEEB", // Light blue for accents (header background or gradients)
+    white: "#FFFFFF", // Main background and text for buttons
+    black: "#232323", // Primary text and icon color
+    grayLight: "#F8F9FA", // Off-white/very light gray for secondary backgrounds
+    gray: "#6C6C6C", // Secondary text and icons
+    grayDark: "#B4B4B4", // Less prominent text and icons
+    borderGray: "#E0E0E0", // Borders for cards or tab bar
+    background: "#ECECEC"
   },
   sizes: {
+    // Icon Sizes
     iconSmall: 16,
+    iconMedium: 24,
+    iconLarge: 32,
 
+    // Text Sizes
+    textSmall: 14,
     textMedium: 16,
     textLarge: 20,
+    textXLarge: 24,
+
+    // Spacing
+    spacingSmall: 8,
+    spacingMedium: 16,
+    spacingLarge: 24,
   },
+  fonts: {
+    // Fonts for consistency in typography
+    regular: "System",
+    bold: "System-Bold",
+    italic: "System-Italic",
+  }
 };
