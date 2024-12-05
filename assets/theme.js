@@ -1,15 +1,15 @@
 export default {
   colors: {
     // Primary Colors
-    coral: "#FF6B6B", // Coral color for highlights, buttons, and active states
-    blue: "#87CEEB", // Light blue for accents (header background or gradients)
+    coral: "#feb9b3", // Coral color for highlights, buttons, and active states
+    blue: "#4ac0f6", // Light blue for accents (header background or gradients)
     white: "#FFFFFF", // Main background and text for buttons
     black: "#232323", // Primary text and icon color
     grayLight: "#F8F9FA", // Off-white/very light gray for secondary backgrounds
     gray: "#6C6C6C", // Secondary text and icons
-    grayDark: "#B4B4B4", // Less prominent text and icons
+    grayDark: "#55595c", // Less prominent text and icons
     borderGray: "#E0E0E0", // Borders for cards or tab bar
-    background: "#ECECEC"
+    background: "#ECECEC",
   },
   sizes: {
     // Icon Sizes
@@ -33,5 +33,5 @@ export default {
     regular: "System",
     bold: "System-Bold",
     italic: "System-Italic",
-  }
+  },
 };
