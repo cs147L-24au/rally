@@ -47,10 +47,10 @@ export default function Login() {
       <View style={styles.splash}>
         <MaterialCommunityIcons
           size={64}
-          name="bee-flower"
+          name="airplane"
           color={Theme.colors.iconHighlighted}
         />
-        <Text style={styles.splashText}>Buzz</Text>
+        <Text style={styles.splashText}>Rally</Text>
       </View>
       <TextInput
         onChangeText={(text) => setEmail(text)}
