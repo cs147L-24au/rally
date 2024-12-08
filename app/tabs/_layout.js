@@ -27,17 +27,37 @@ export default function TabLayout() {
               color={color}
             />
           ),
-          headerShown: false,
         }}
       />
       <Tabs.Screen
-        name="profile/index"
+        name="explore"  // Changed from explore/index
+        options={{
+          title: "Explore",
+          tabBarIcon: ({ size, color }) => (
+            <FontAwesome size={size} name="search" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="groups"  // Changed from groups/index
+        options={{
+          title: "Groups",
+          tabBarIcon: ({ size, color }) => (
+            <MaterialCommunityIcons
+              size={size}
+              name="account-group"
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"  // Changed from profile/index
         options={{
           title: "Profile",
           tabBarIcon: ({ size, color }) => (
             <FontAwesome size={size} name="user" color={color} />
           ),
-          headerShown: false,
         }}
       />
     </Tabs>

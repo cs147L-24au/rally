@@ -6,7 +6,6 @@ export default function Destinations() {
     <SafeAreaView style={{ flex: 1, backgroundColor: Theme.colors.background }}>
       <View style={styles.container}>
         <Text style={styles.title}>Explore Destinations</Text>
-        {/* Add your group creation form/content here */}
       </View>
     </SafeAreaView>
   );

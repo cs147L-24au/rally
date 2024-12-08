@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  SafeAreaView,
+  View,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 
 import { useRouter } from "expo-router";
 
@@ -9,7 +16,7 @@ import Loading from "@/components/Loading";
 import db from "@/database/db";
 import useSession from "@/utils/useSession";
 
-export default function Profile() {
+export default function Explore() {
   const session = useSession();
   const router = useRouter();
 
@@ -32,7 +39,7 @@ export default function Profile() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.userContainer}>
         <View style={styles.userTextContainer}>
           <Text style={styles.title}>Logged in as: </Text>
@@ -40,11 +47,9 @@ export default function Profile() {
             <Text style={styles.buttonText}>Sign out</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.text}>{session.user.email}</Text>
+        <Text style={styles.text}>Dantheman123</Text>
       </View>
-      <Text style={[styles.title, styles.postTitle]}>My Posts</Text>
-      <Feed shouldNavigateToComments={false} fetchUsersPostsOnly={true} />
-    </View>
+    </SafeAreaView>
   );
 }
 
