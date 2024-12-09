@@ -1,89 +1,58 @@
-import {
-  StyleSheet,
-  Text,
-  SafeAreaView,
-  View,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import React, { useState } from 'react';
+import { View, StyleSheet, Text } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
-import { useRouter } from "expo-router";
-
-import Theme from "@/assets/theme";
-import Feed from "@/components/Feed";
-import Loading from "@/components/Loading";
-
-import db from "@/database/db";
-import useSession from "@/utils/useSession";
-
-export default function Explore() {
-  const session = useSession();
-  const router = useRouter();
-
-  const signOut = async () => {
-    try {
-      const { error } = await db.auth.signOut();
-      if (error) {
-        Alert.alert(error.message);
-      } else {
-        router.navigate("/");
-        Alert.alert("Sign out successful.");
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  if (!session) {
-    return <Loading />;
-  }
+const MyComponent = () => {
+  const [selectedOption, setSelectedOption] = useState('Select an option');
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.userContainer}>
-        <View style={styles.userTextContainer}>
-          <Text style={styles.title}>Logged in as: </Text>
-          <TouchableOpacity onPress={() => signOut()}>
-            <Text style={styles.buttonText}>Sign out</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.text}>Dantheman123</Text>
+    <View style={styles.container}>
+      <Text style={styles.label}>Choose an Option:</Text>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={selectedOption}
+          onValueChange={(itemValue) => setSelectedOption(itemValue)}
+          style={styles.picker}
+        >
+          <Picker.Item label="Select an option" value="Select an option" />
+          {Array.from({ length: 20 }, (_, i) => (
+            <Picker.Item key={i} label={`Option ${i + 1}`} value={`Option ${i + 1}`} />
+          ))}
+        </Picker>
       </View>
-    </SafeAreaView>
+      <Text style={styles.selectedText}>Selected: {selectedOption}</Text>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Theme.colors.backgroundPrimary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
-  postTitle: {
-    padding: 12,
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
-  userContainer: {
-    width: "100%",
-    marginTop: 12,
-    paddingHorizontal: 12,
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    width: '80%',
+    backgroundColor: '#fff',
   },
-  userTextContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 8,
+  picker: {
+    height: 50,
+    width: '100%',
   },
-  title: {
-    color: Theme.colors.textPrimary,
-    fontSize: Theme.sizes.textMedium,
-    fontWeight: "bold",
-  },
-  text: {
-    color: Theme.colors.textPrimary,
-    fontSize: Theme.sizes.textMedium,
-    paddingLeft: 8,
-  },
-  buttonText: {
-    fontWeight: "bold",
-    color: Theme.colors.textHighlighted,
-    fontSize: Theme.sizes.textMedium,
+  selectedText: {
+    marginTop: 20,
+    fontSize: 16,
+    fontStyle: 'italic',
   },
 });
+
+export default MyComponent;
