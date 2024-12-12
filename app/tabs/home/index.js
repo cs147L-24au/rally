@@ -2,7 +2,6 @@ import { StyleSheet, ScrollView, View, SafeAreaView } from "react-native";
 import Theme from "@/assets/theme";
 import TripPlanningCard from "@/components/TripPlanningCard";
 import ExplorePPCard from "@/components/ExplorePPCard";
-import LastTripCard from "@/components/LastTripCard";
 import { Link, router } from "expo-router";
 
 export default function Home() {

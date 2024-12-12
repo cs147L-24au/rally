@@ -1,54 +1,84 @@
+import React, { useState } from "react";
 import {
-  StyleSheet,
-  Text,
   SafeAreaView,
   View,
   TouchableOpacity,
-  Alert,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
 } from "react-native";
 
-import { useRouter } from "expo-router";
-
+import ExploreSearch from "@/components/ExploreSearch";
+import ExploreItem from "@/components/ExploreItem";
+import { useExploreData } from "@/utils/useExploreData";
 import Theme from "@/assets/theme";
-import Feed from "@/components/Feed";
-import Loading from "@/components/Loading";
-
-import db from "@/database/db";
-import useSession from "@/utils/useSession";
 
 export default function Explore() {
-  const session = useSession();
-  const router = useRouter();
+  const [searchParams, setSearchParams] = useState({
+    fromDestination: "",
+    destination: "",
+    fromDate: null,
+    toDate: null,
+    group: "",
+  });
 
-  const signOut = async () => {
-    try {
-      const { error } = await db.auth.signOut();
-      if (error) {
-        Alert.alert(error.message);
-      } else {
-        router.navigate("/");
-        Alert.alert("Sign out successful.");
-      }
-    } catch (err) {
-      console.log(err);
-    }
+  const { activeTab, setActiveTab, currentData, isLoading, error } =
+    useExploreData(searchParams);
+
+  const handleSearch = (params) => {
+    setSearchParams(params);
   };
 
-  if (!session) {
-    return <Loading />;
-  }
+  const renderItem = ({ item }) => (
+    <ExploreItem
+      title={item.title}
+      image={item.image}
+      source={item.source}
+      cost={item.cost}
+      details={item.details}
+      item={item} // Pass the full item
+    />
+  );
+
+  const TabButton = ({ title, tabKey }) => {
+    const isActive = activeTab === tabKey;
+    return (
+      <TouchableOpacity
+        style={[styles.button, isActive && styles.activeButton]}
+        onPress={() => setActiveTab(tabKey)}
+      >
+        <Text style={[styles.buttonText, isActive && styles.activeButtonText]}>
+          {title}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.userContainer}>
-        <View style={styles.userTextContainer}>
-          <Text style={styles.title}>Logged in as: </Text>
-          <TouchableOpacity onPress={() => signOut()}>
-            <Text style={styles.buttonText}>Sign out</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.text}>Dantheman123</Text>
+      <ExploreSearch onSearch={handleSearch} />
+      <View style={styles.buttonContainer}>
+        <TabButton title="Stays" tabKey="stays" />
+        <TabButton title="Flights" tabKey="flights" />
+        <TabButton title="Activities" tabKey="activities" />
       </View>
+
+      {isLoading ? (
+        <ActivityIndicator size="large" color={Theme.colors.blue} />
+      ) : (
+        <FlatList
+          key={activeTab}
+          data={currentData}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No {activeTab} found</Text> // TODO: STYLE THIS
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -56,34 +86,39 @@ export default function Explore() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Theme.colors.backgroundPrimary,
+    backgroundColor: Theme.colors.background,
   },
-  postTitle: {
-    padding: 12,
+  listContent: {
+    paddingBottom: Theme.sizes.spacingLarge,
   },
-  userContainer: {
-    width: "100%",
-    marginTop: 12,
-    paddingHorizontal: 12,
-  },
-  userTextContainer: {
+  buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 8,
+    gap: Theme.sizes.spacingSmall,
+    paddingHorizontal: Theme.sizes.spacingMedium,
+    marginBottom: Theme.sizes.spacingMedium,
   },
-  title: {
-    color: Theme.colors.textPrimary,
-    fontSize: Theme.sizes.textMedium,
-    fontWeight: "bold",
+  button: {
+    flex: 1,
+    paddingVertical: Theme.sizes.spacingSmall,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: Theme.colors.blue,
+    alignItems: "center",
   },
-  text: {
-    color: Theme.colors.textPrimary,
-    fontSize: Theme.sizes.textMedium,
-    paddingLeft: 8,
+  activeButton: {
+    backgroundColor: Theme.colors.blue,
   },
   buttonText: {
-    fontWeight: "bold",
-    color: Theme.colors.textHighlighted,
-    fontSize: Theme.sizes.textMedium,
+    color: Theme.colors.blue,
+    fontWeight: "500",
+  },
+  activeButtonText: {
+    color: Theme.colors.white,
+  },
+  errorText: {
+    color: Theme.colors.coral,
+    textAlign: "center",
+    margin: Theme.sizes.spacingMedium,
   },
 });

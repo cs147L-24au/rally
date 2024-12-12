@@ -14,6 +14,7 @@ export default function TabLayout() {
           backgroundColor: Theme.colors.backgroundPrimary,
         },
         tabBarStyle: { backgroundColor: Theme.colors.backgroundPrimary },
+        headerShown: false,
       }}
     >
       <Tabs.Screen
@@ -30,7 +31,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"  // Changed from explore/index
+        name="explore"
         options={{
           title: "Explore",
           tabBarIcon: ({ size, color }) => (
@@ -39,7 +40,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="groups"  // Changed from groups/index
+        name="groups"
         options={{
           title: "Groups",
           tabBarIcon: ({ size, color }) => (
@@ -52,7 +53,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"  // Changed from profile/index
+        name="profile"
         options={{
           title: "Profile",
           tabBarIcon: ({ size, color }) => (

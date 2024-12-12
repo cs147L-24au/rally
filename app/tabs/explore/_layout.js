@@ -15,15 +15,18 @@ export default function ExploreStackLayout() {
         options={{
           headerTitle: () => (
             <View style={styles.headerContainer}>
-              <MaterialCommunityIcons
-                size={40}
-                name="airplane"
-                color={Theme.colors.iconHighlighted}
-              />
-              <Text style={styles.headerText}>Rally</Text>
+              <Text style={styles.headerText}>Explore</Text>
             </View>
           ),
           headerTitleAlign: "center",
+        }}
+      />
+      <Stack.Screen
+        name="flightDetails"
+        options={{
+          headerTitle: "Flight Details",
+          headerTitleAlign: "center",
+          presentation: "card",
         }}
       />
     </Stack>
