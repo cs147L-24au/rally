@@ -4,34 +4,52 @@ import {
   SafeAreaView,
   View,
   TouchableOpacity,
-  Alert,
+  FlatList,
 } from "react-native";
 
 import { useRouter } from "expo-router";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import Theme from "@/assets/theme";
 import Loading from "@/components/Loading";
 
 import db from "@/database/db";
 import useSession from "@/utils/useSession";
+import { useState, useEffect } from "react";
 
 export default function Groups() {
   const session = useSession();
   const router = useRouter();
+  const [groups, setGroups] = useState([]);
 
-  const signOut = async () => {
-    try {
-      const { error } = await db.auth.signOut();
-      if (error) {
-        Alert.alert(error.message);
-      } else {
-        router.navigate("/");
-        Alert.alert("Sign out successful.");
-      }
-    } catch (err) {
-      console.log(err);
-    }
+  useEffect(() => {
+    // TODO: Currently using mock data, replace with actual DB fetch
+    setGroups([
+      { id: 1, name: "Afleda" },
+      { id: 2, name: "Asia Fall 2024" },
+      { id: 3, name: "Weekend Getaway" },
+    ]);
+  }, []);
+
+  // Handle navigation to a group's summary page when clicked
+  const navigateToGroupSummary = (groupName) => {
+    router.push({
+      pathname: "/tabs/groups/groupsummary",
+      params: { groupName }
+    });
   };
+
+  const renderGroupItem = ({ item }) => (
+    <TouchableOpacity 
+      style={styles.groupItem}
+      onPress={() => {
+        navigateToGroupSummary(item.name);
+        console.log(`Navigating to Group Summary for: ${item.name}`);
+      }}
+    >
+      <Text style={styles.groupName}>{item.name}</Text>
+    </TouchableOpacity>
+  );
 
   if (!session) {
     return <Loading />;
@@ -39,15 +57,25 @@ export default function Groups() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.userContainer}>
-        <View style={styles.userTextContainer}>
-          <Text style={styles.title}>Logged in as: </Text>
-          <TouchableOpacity onPress={() => signOut()}>
-            <Text style={styles.buttonText}>Sign out</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.text}>Dantheman123</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>My Groups</Text>
       </View>
+      <FlatList
+        data={groups}
+        renderItem={renderGroupItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.listContainer}
+      />
+      <TouchableOpacity 
+        style={styles.addButton}
+        onPress={() => {/* TODO: Add new group logic */}}
+      >
+        <MaterialCommunityIcons
+          name="plus"
+          size={30}
+          color={Theme.colors.textPrimary}
+        />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -57,32 +85,43 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Theme.colors.backgroundPrimary,
   },
-  postTitle: {
-    padding: 12,
+  listContainer: {
+    padding: 16,
   },
-  userContainer: {
-    width: "100%",
-    marginTop: 12,
-    paddingHorizontal: 12,
+  groupItem: {
+    backgroundColor: Theme.colors.backgroundSecondary,
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 12,
   },
-  userTextContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  title: {
+  groupName: {
     color: Theme.colors.textPrimary,
     fontSize: Theme.sizes.textMedium,
     fontWeight: "bold",
   },
-  text: {
-    color: Theme.colors.textPrimary,
-    fontSize: Theme.sizes.textMedium,
-    paddingLeft: 8,
+  addButton: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Theme.colors.backgroundHighlighted,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  buttonText: {
-    fontWeight: "bold",
-    color: Theme.colors.textHighlighted,
-    fontSize: Theme.sizes.textMedium,
+  headerContainer: {
+    padding: 16,
+    paddingBottom: 8,
+  },
+  headerText: {
+    fontSize: Theme.sizes.textLarge,
+    fontWeight: 'bold',
+    color: Theme.colors.textPrimary,
   },
 });
