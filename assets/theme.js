@@ -2,7 +2,7 @@ export default {
   colors: {
     // Primary Colors
     coral: "#F26F6A", // Coral color for highlights, buttons, and active states
-    blue: "#4ac0f6", // Light blue for accents (header background or gradients)
+    blue: "#4A90E2", // Light blue for accents (header background or gradients)
     white: "#FFFFFF", // Main background and text for buttons
     black: "#232323", // Primary text and icon color
     grayLight: "#F8F9FA", // Off-white/very light gray for secondary backgrounds

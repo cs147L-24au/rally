@@ -1,58 +1,97 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import React from "react";
+import {
+  SafeAreaView,
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  FlatList,
+} from "react-native";
+import ExploreSearch from "@/components/ExploreSearch";
+import ExploreItem from "@/components/ExploreItem";
+import { useExploreData } from "@/utils/useExploreData";
+import Theme from "@/assets/theme";
 
-const MyComponent = () => {
-  const [selectedOption, setSelectedOption] = useState('Select an option');
+export default function Explore() {
+  const { activeTab, setActiveTab, currentData } = useExploreData();
+
+  const renderItem = ({ item }) => (
+    <ExploreItem
+      title={item.title}
+      image={item.image}
+      source={item.source}
+      cost={item.cost}
+      onPress={() => {
+        console.log("Learn more about:", item.title);
+      }}
+    />
+  );
+
+  const TabButton = ({ title, tabKey }) => {
+    const isActive = activeTab === tabKey;
+    return (
+      <TouchableOpacity
+        style={[styles.button, isActive && styles.activeButton]}
+        onPress={() => setActiveTab(tabKey)}
+      >
+        <Text style={[styles.buttonText, isActive && styles.activeButtonText]}>
+          {title}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Choose an Option:</Text>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={selectedOption}
-          onValueChange={(itemValue) => setSelectedOption(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Select an option" value="Select an option" />
-          {Array.from({ length: 20 }, (_, i) => (
-            <Picker.Item key={i} label={`Option ${i + 1}`} value={`Option ${i + 1}`} />
-          ))}
-        </Picker>
+    <SafeAreaView style={styles.container}>
+      <ExploreSearch />
+      <View style={styles.buttonContainer}>
+        <TabButton title="Stays" tabKey="stays" />
+        <TabButton title="Flights" tabKey="flights" />
+        <TabButton title="Activities" tabKey="activities" />
       </View>
-      <Text style={styles.selectedText}>Selected: {selectedOption}</Text>
-    </View>
+      <FlatList
+        key={activeTab}
+        data={currentData}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+      />
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    backgroundColor: Theme.colors.background,
   },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
+  listContent: {
+    paddingBottom: Theme.sizes.spacingLarge,
   },
-  pickerContainer: {
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: Theme.sizes.spacingSmall,
+    paddingHorizontal: Theme.sizes.spacingMedium,
+    marginBottom: Theme.sizes.spacingMedium,
+  },
+  button: {
+    flex: 1,
+    paddingVertical: Theme.sizes.spacingSmall,
+    borderRadius: 25,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    width: '80%',
-    backgroundColor: '#fff',
+    borderColor: Theme.colors.blue,
+    alignItems: "center",
   },
-  picker: {
-    height: 50,
-    width: '100%',
+  activeButton: {
+    backgroundColor: Theme.colors.blue,
   },
-  selectedText: {
-    marginTop: 20,
-    fontSize: 16,
-    fontStyle: 'italic',
+  buttonText: {
+    color: Theme.colors.blue,
+    fontWeight: "500",
+  },
+  activeButtonText: {
+    color: Theme.colors.white,
   },
 });
-
-export default MyComponent;
