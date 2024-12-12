@@ -21,6 +21,14 @@ export default function ExploreStackLayout() {
           headerTitleAlign: "center",
         }}
       />
+      <Stack.Screen
+        name="flightDetails"
+        options={{
+          headerTitle: "Flight Details",
+          headerTitleAlign: "center",
+          presentation: "card",
+        }}
+      />
     </Stack>
   );
 }

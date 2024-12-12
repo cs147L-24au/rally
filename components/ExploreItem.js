@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import Theme from "@/assets/theme";
+import { useRouter } from "expo-router";
 
 // In ExploreItem.js
 export default function ExploreItem({
@@ -9,8 +10,10 @@ export default function ExploreItem({
   source,
   cost,
   details,
-  onPress,
+  item,
 }) {
+  const router = useRouter();
+
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{title}</Text>
@@ -31,8 +34,16 @@ export default function ExploreItem({
         </View>
 
         <View style={styles.actionContainer}>
-          <TouchableOpacity style={styles.learnMore} onPress={onPress}>
-            <Text style={styles.learnMoreText}>Book now</Text>
+          <TouchableOpacity
+            style={styles.learnMore}
+            onPress={() =>
+              router.push({
+                pathname: "/tabs/explore/flightDetails",
+                params: { item: JSON.stringify(item) },
+              })
+            }
+          >
+            <Text style={styles.learnMoreText}>View Details</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.bookmark}>
             <Text>🔖</Text>

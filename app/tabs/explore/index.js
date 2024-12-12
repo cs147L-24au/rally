@@ -37,9 +37,7 @@ export default function Explore() {
       source={item.source}
       cost={item.cost}
       details={item.details}
-      onPress={() => {
-        console.log("Book flight to:", item.title, "Price:", item.cost);
-      }}
+      item={item} // Pass the full item
     />
   );
 

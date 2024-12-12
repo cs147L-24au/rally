@@ -24,24 +24,67 @@ const searchAirport = async (query) => {
 const transformFlightData = (data) => {
   if (!data?.data?.flightOffers) return [];
 
-  return data.data.flightOffers.map((offer) => ({
-    id: offer.token,
-    title: `${offer.segments[0].departureAirport.cityName} to ${offer.segments[0].arrivalAirport.cityName}`,
-    image:
-      offer.segments[0].legs[0]?.carriersData?.[0]?.logo ||
-      DEFAULT_IMAGES.FLIGHT,
-    cost: `$${Math.round(offer.priceBreakdown.total.units)}`,
-    source:
-      offer.segments[0].legs[0]?.carriersData?.[0]?.name || "Multiple Airlines",
-    details: {
-      direct: offer.segments[0].legs.length === 1,
-      departure: new Date(offer.segments[0].departureTime).toLocaleString(),
-      arrival: new Date(offer.segments[0].arrivalTime).toLocaleString(),
-      duration: `${Math.floor(
-        offer.segments[0].totalTime / 3600
-      )}h ${Math.floor((offer.segments[0].totalTime % 3600) / 60)}m`,
-    },
-  }));
+  return data.data.flightOffers.map((offer) => {
+    const outboundFlight = offer.segments[0];
+    const outboundLeg = outboundFlight?.legs?.[0];
+    const airline = outboundLeg?.carriersData?.[0];
+
+    return {
+      id: offer.token,
+      title: `${outboundFlight.departureAirport.cityName} to ${outboundFlight.arrivalAirport.cityName}`,
+      image: airline?.logo || DEFAULT_IMAGES.FLIGHT,
+      cost: `$${Math.round(offer.priceBreakdown.total.units)}`,
+      source: airline?.name || "Multiple Airlines",
+      details: {
+        direct: outboundFlight.legs.length === 1,
+        departure: new Date(outboundFlight.departureTime).toLocaleString(),
+        arrival: new Date(outboundFlight.arrivalTime).toLocaleString(),
+        duration: `${Math.floor(outboundFlight.totalTime / 3600)}h ${Math.floor(
+          (outboundFlight.totalTime % 3600) / 60
+        )}m`,
+      },
+      extendedDetails: {
+        airports: {
+          departure: {
+            code: outboundFlight.departureAirport.code,
+            name: outboundFlight.departureAirport.name,
+            city: outboundFlight.departureAirport.cityName,
+            terminal: outboundFlight.departureTerminal,
+          },
+          arrival: {
+            code: outboundFlight.arrivalAirport.code,
+            name: outboundFlight.arrivalAirport.name,
+            city: outboundFlight.arrivalAirport.cityName,
+            terminal: outboundFlight.arrivalTerminal,
+          },
+        },
+        pricing: {
+          base: offer.priceBreakdown.baseFare?.units,
+          taxes: offer.priceBreakdown.tax?.units,
+          fees: offer.priceBreakdown.fee?.units,
+          total: offer.priceBreakdown.total.units,
+          currency: offer.priceBreakdown.total.currencyCode,
+        },
+        airline: {
+          name: airline?.name,
+          code: airline?.code,
+          logo: airline?.logo,
+        },
+        booking: {
+          refundable: offer.refundable,
+          cabinClass: offer.cabinClass,
+          seatsAvailable: offer.seatsAvailable,
+        },
+        segments: outboundFlight.legs.map((leg) => ({
+          flightNumber: leg.flightNumber,
+          departure: new Date(leg.departureTime).toLocaleString(),
+          arrival: new Date(leg.arrivalTime).toLocaleString(),
+          duration: leg.duration,
+          airline: leg.carriersData?.[0]?.name,
+        })),
+      },
+    };
+  });
 };
 
 export const fetchFlightItems = async (searchParams) => {
