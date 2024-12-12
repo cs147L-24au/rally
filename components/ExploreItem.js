@@ -4,15 +4,33 @@ import Theme from "@/assets/theme";
 import { useRouter } from "expo-router";
 
 // In ExploreItem.js
-export default function ExploreItem({
-  title,
-  image,
-  source,
-  cost,
-  details,
-  item,
-}) {
+export default function ExploreItem({ title, image, source, cost, item }) {
   const router = useRouter();
+
+  const handleLearnMore = () => {
+    if (item.details?.category) {
+      router.push(
+        "/tabs/explore/activityDetails?item=" +
+          encodeURIComponent(JSON.stringify(item))
+      );
+    } else if (item.details?.flightDetails) {
+      router.push(
+        "/tabs/explore/flightDetails?item=" +
+          encodeURIComponent(JSON.stringify(item))
+      );
+    } else {
+      router.push(
+        "/tabs/explore/stayDetails?item=" +
+          encodeURIComponent(JSON.stringify(item))
+      );
+    }
+  };
+
+  const displayCost = () => {
+    if (!cost) return "Price not available";
+    if (cost.toLowerCase().includes("free")) return "Free";
+    return cost;
+  };
 
   return (
     <View style={styles.card}>
@@ -26,27 +44,12 @@ export default function ExploreItem({
 
       <View style={styles.infoContainer}>
         <View>
-          <Text style={styles.source}>Source: {source}</Text>
-          <Text style={styles.cost}>Price: {cost}</Text>
-          {details?.direct && (
-            <Text style={styles.flightDetail}>Direct flight available</Text>
-          )}
+          <Text style={styles.source}>{source}</Text>
+          <Text style={styles.cost}>{displayCost()}</Text>
         </View>
-
         <View style={styles.actionContainer}>
-          <TouchableOpacity
-            style={styles.learnMore}
-            onPress={() =>
-              router.push({
-                pathname: "/tabs/explore/flightDetails",
-                params: { item: JSON.stringify(item) },
-              })
-            }
-          >
-            <Text style={styles.learnMoreText}>View Details</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bookmark}>
-            <Text>🔖</Text>
+          <TouchableOpacity style={styles.learnMore} onPress={handleLearnMore}>
+            <Text style={styles.learnMoreText}>Learn More</Text>
           </TouchableOpacity>
         </View>
       </View>

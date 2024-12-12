@@ -9,10 +9,10 @@ import {
 import { useLocalSearchParams } from "expo-router";
 import Theme from "@/assets/theme";
 
-export default function FlightDetails({ route }) {
+export default function FlightDetails() {
   const { item } = useLocalSearchParams();
   const parsedItem = typeof item === "string" ? JSON.parse(item) : item;
-  const { details, extendedDetails } = parsedItem;
+  const { details } = parsedItem;
 
   return (
     <ScrollView style={styles.container}>
@@ -27,21 +27,15 @@ export default function FlightDetails({ route }) {
         <Text style={styles.sectionTitle}>Price Breakdown</Text>
         <View style={styles.detailRow}>
           <Text style={styles.label}>Base Fare</Text>
-          <Text style={styles.value}>
-            ${extendedDetails?.pricing?.base || "0"}
-          </Text>
+          <Text style={styles.value}>${details?.pricing?.base || "0"}</Text>
         </View>
         <View style={styles.detailRow}>
           <Text style={styles.label}>Taxes</Text>
-          <Text style={styles.value}>
-            ${extendedDetails?.pricing?.taxes || "0"}
-          </Text>
+          <Text style={styles.value}>${details?.pricing?.taxes || "0"}</Text>
         </View>
         <View style={styles.detailRow}>
           <Text style={styles.label}>Fees</Text>
-          <Text style={styles.value}>
-            ${extendedDetails?.pricing?.fees || "0"}
-          </Text>
+          <Text style={styles.value}>${details?.pricing?.fees || "0"}</Text>
         </View>
         <View style={[styles.detailRow, styles.totalRow]}>
           <Text style={styles.totalLabel}>Total</Text>
@@ -79,13 +73,19 @@ export default function FlightDetails({ route }) {
           <View style={styles.detailRow}>
             <Text style={styles.label}>Airport</Text>
             <Text style={styles.value}>
-              {extendedDetails?.airports?.departure?.name}
+              {details?.airports?.departure?.name}
             </Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.label}>Terminal</Text>
             <Text style={styles.value}>
-              {extendedDetails?.airports?.departure?.terminal || "TBD"}
+              {details?.airports?.departure?.terminal || "TBD"}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>City</Text>
+            <Text style={styles.value}>
+              {details?.airports?.departure?.city}
             </Text>
           </View>
         </View>
@@ -94,17 +94,41 @@ export default function FlightDetails({ route }) {
           <Text style={styles.subheader}>Arrival</Text>
           <View style={styles.detailRow}>
             <Text style={styles.label}>Airport</Text>
-            <Text style={styles.value}>
-              {extendedDetails?.airports?.arrival?.name}
-            </Text>
+            <Text style={styles.value}>{details?.airports?.arrival?.name}</Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.label}>Terminal</Text>
             <Text style={styles.value}>
-              {extendedDetails?.airports?.arrival?.terminal || "TBD"}
+              {details?.airports?.arrival?.terminal || "TBD"}
             </Text>
           </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>City</Text>
+            <Text style={styles.value}>{details?.airports?.arrival?.city}</Text>
+          </View>
         </View>
+      </View>
+
+      {/* Airline Information */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Airline Information</Text>
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>Airline</Text>
+          <Text style={styles.value}>{details?.airline?.name}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>Flight Class</Text>
+          <Text style={styles.value}>{details?.booking?.cabinClass}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>Seats Available</Text>
+          <Text style={styles.value}>{details?.booking?.seatsAvailable}</Text>
+        </View>
+        {details?.booking?.refundable && (
+          <View style={styles.refundable}>
+            <Text style={styles.refundableText}>✓ Refundable Ticket</Text>
+          </View>
+        )}
       </View>
 
       {/* Add to Group button */}
@@ -209,6 +233,18 @@ const styles = StyleSheet.create({
   },
   directFlightText: {
     color: Theme.colors.success,
+    fontSize: Theme.sizes.textMedium,
+    fontWeight: "600",
+  },
+  refundable: {
+    marginTop: Theme.sizes.spacingMedium,
+    padding: Theme.sizes.spacingMedium,
+    backgroundColor: Theme.colors.primaryLight,
+    borderRadius: Theme.sizes.borderRadius,
+    alignItems: "center",
+  },
+  refundableText: {
+    color: Theme.colors.primary,
     fontSize: Theme.sizes.textMedium,
     fontWeight: "600",
   },

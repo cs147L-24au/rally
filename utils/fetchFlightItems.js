@@ -36,14 +36,15 @@ const transformFlightData = (data) => {
       cost: `$${Math.round(offer.priceBreakdown.total.units)}`,
       source: airline?.name || "Multiple Airlines",
       details: {
+        // Flight basics
         direct: outboundFlight.legs.length === 1,
         departure: new Date(outboundFlight.departureTime).toLocaleString(),
         arrival: new Date(outboundFlight.arrivalTime).toLocaleString(),
         duration: `${Math.floor(outboundFlight.totalTime / 3600)}h ${Math.floor(
           (outboundFlight.totalTime % 3600) / 60
         )}m`,
-      },
-      extendedDetails: {
+
+        // Airports
         airports: {
           departure: {
             code: outboundFlight.departureAirport.code,
@@ -58,6 +59,8 @@ const transformFlightData = (data) => {
             terminal: outboundFlight.arrivalTerminal,
           },
         },
+
+        // Pricing
         pricing: {
           base: offer.priceBreakdown.baseFare?.units,
           taxes: offer.priceBreakdown.tax?.units,
@@ -65,21 +68,31 @@ const transformFlightData = (data) => {
           total: offer.priceBreakdown.total.units,
           currency: offer.priceBreakdown.total.currencyCode,
         },
+
+        // Airline
         airline: {
           name: airline?.name,
           code: airline?.code,
           logo: airline?.logo,
         },
+
+        // Booking
         booking: {
-          refundable: offer.refundable,
-          cabinClass: offer.cabinClass,
-          seatsAvailable: offer.seatsAvailable,
+          refundable: offer.brandedFareInfo?.features?.some(
+            (f) => f.featureName === "REFUNDABLE"
+          ),
+          cabinClass: outboundLeg.cabinClass,
+          seatsAvailable: offer.seatAvailability?.numberOfSeatsAvailable,
         },
+
+        // Flight segments
         segments: outboundFlight.legs.map((leg) => ({
-          flightNumber: leg.flightNumber,
+          flightNumber: leg.flightInfo.flightNumber,
           departure: new Date(leg.departureTime).toLocaleString(),
           arrival: new Date(leg.arrivalTime).toLocaleString(),
-          duration: leg.duration,
+          duration: `${Math.floor(leg.totalTime / 3600)}h ${Math.floor(
+            (leg.totalTime % 3600) / 60
+          )}m`,
           airline: leg.carriersData?.[0]?.name,
         })),
       },
@@ -106,7 +119,17 @@ export const fetchFlightItems = async (searchParams) => {
     });
 
     const data = await fetchWithAuth(url, API_CONFIG.flights.host);
-    return transformFlightData(data);
+
+    // Log raw flight search response
+    console.log("Flight Search Response:", {
+      url,
+      params: searchParams,
+      response: JSON.stringify(data, null, 2),
+    });
+
+    const transformedData = transformFlightData(data);
+
+    return transformedData;
   } catch (error) {
     logError("Flight search", error);
   }

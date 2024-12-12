@@ -34,30 +34,83 @@ const searchLocation = async (query) => {
   }
 };
 
-const transformHotelData = (data) => {
-  const hotels = data.data.results.hotelCards;
+const transformHotelData = (data, searchParams) => {
+  if (!data?.data?.results?.hotelCards) return [];
+  if (!searchParams?.fromDate || !searchParams?.toDate) {
+    console.warn("Missing date parameters in hotel search");
+    return [];
+  }
 
-  return hotels.map((hotel) => ({
-    id: hotel.hotelId,
-    title: hotel.name,
-    source: "Skyscanner",
-    cost: hotel.cheapestPrice || "Price unavailable",
-    image: hotel.images?.[0] || DEFAULT_IMAGES.STAY,
-    details: {
-      address: hotel.distance || "",
-      amenities: hotel.lowestPrice?.amenities || [],
-      coordinates: {
-        latitude: hotel.coordinates?.latitude,
-        longitude: hotel.coordinates?.longitude,
+  const checkInDate = new Date(searchParams.fromDate);
+  const checkOutDate = new Date(searchParams.toDate);
+  const totalNights = Math.ceil(
+    (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  return data.data.results.hotelCards.map((hotel) => {
+    const lowestPrice = hotel.lowestPrice;
+    const review = hotel.reviewsSummary;
+
+    // Transform other providers data
+    const otherProviders =
+      hotel.otherPrices?.map((provider) => ({
+        name: provider.name,
+        price: provider.price,
+        logo: provider.logo,
+        url: provider.url,
+        isOfficial: provider.isOfficial,
+        features: provider.rateFeatures || [],
+        partnerType: provider.partnerType,
+      })) || [];
+
+    return {
+      id: hotel.hotelId,
+      title: hotel.name,
+      image: hotel.images?.[0] || DEFAULT_IMAGES.HOTEL,
+      additionalImages: hotel.images?.slice(1) || [],
+      source: lowestPrice?.partnerName || "Multiple providers",
+      cost: lowestPrice?.price || "Price unavailable",
+      details: {
+        // Basic Info
+        stars: Number(hotel.stars) || 0,
+        rating: review?.score || 0,
+        reviews: review?.total || 0,
+        reviewText: review?.scoreDesc || "No reviews",
+
+        // Dates and Duration
+        checkIn: checkInDate.toLocaleDateString("en-US", dateOptions),
+        checkOut: checkOutDate.toLocaleDateString("en-US", dateOptions),
+        totalNights: totalNights,
+
+        // Location
+        distance: hotel.distance,
+        landmark: hotel.relevantPoiDistance,
+        coordinates: hotel.coordinates,
+
+        // Pricing
+        pricePerNight: Math.round((lowestPrice?.rawPrice || 0) / totalNights),
+        basePrice: Math.round((lowestPrice?.rawBasePrice || 0) / totalNights),
+        taxAndFees: Math.round((lowestPrice?.rawTaxAndFees || 0) / totalNights),
+
+        // Booking
+        bookingUrl: lowestPrice?.url || null,
+        otherProviders: otherProviders,
+
+        // Additional Info
+        highlights: hotel.confidentMessages || [],
+        amenities: lowestPrice?.rateFeatures || [],
+        isCheapest: lowestPrice?.isPriceCheapest || false,
+        partnerType: lowestPrice?.partnerType || null,
+        partnerLogo: lowestPrice?.partnerLogo || null,
       },
-      rating: hotel.reviewsSummary?.score?.toString() || "N/A",
-      reviews: hotel.reviewsSummary?.total || 0,
-    },
-  }));
+    };
+  });
 };
 
 export const fetchStayItems = async (searchParams) => {
   try {
+    console.log("Stay Search Params:", searchParams);
+
     const location = await searchLocation(searchParams.destination);
     if (!location) {
       throw new Error("Could not find location");
@@ -74,6 +127,13 @@ export const fetchStayItems = async (searchParams) => {
     while (attempts < MAX_POLLING_ATTEMPTS) {
       attempts++;
       const data = await fetchWithAuth(url, API_CONFIG.stays.host);
+
+      // Log each polling attempt
+      console.log(`Stay Search Polling Attempt ${attempts}:`, {
+        url,
+        status: data?.data?.status,
+        response: JSON.stringify(data, null, 2),
+      });
 
       const status = data?.data?.status;
       if (
@@ -92,7 +152,9 @@ export const fetchStayItems = async (searchParams) => {
       throw new Error("Search timed out without complete results");
     }
 
-    return transformHotelData(finalData);
+    const transformedData = transformHotelData(finalData, searchParams);
+
+    return transformedData;
   } catch (error) {
     logError("Hotel search", error);
   }

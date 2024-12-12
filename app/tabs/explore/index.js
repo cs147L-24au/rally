@@ -23,11 +23,17 @@ export default function Explore() {
     group: "",
   });
 
-  const { activeTab, setActiveTab, currentData, isLoading, error } =
-    useExploreData(searchParams);
+  const {
+    activeTab,
+    setActiveTab,
+    currentData,
+    isLoading,
+    error,
+    handleSearch,
+  } = useExploreData();
 
-  const handleSearch = (params) => {
-    setSearchParams(params);
+  const handleSearchSubmit = (params) => {
+    handleSearch(params);
   };
 
   const renderItem = ({ item }) => (
@@ -57,7 +63,7 @@ export default function Explore() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ExploreSearch onSearch={handleSearch} />
+      <ExploreSearch onSearch={handleSearchSubmit} />
       <View style={styles.buttonContainer}>
         <TabButton title="Stays" tabKey="stays" />
         <TabButton title="Flights" tabKey="flights" />
