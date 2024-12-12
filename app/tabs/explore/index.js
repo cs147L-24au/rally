@@ -17,7 +17,7 @@ import Theme from "@/assets/theme";
 export default function Explore() {
   const [searchParams, setSearchParams] = useState({
     fromDestination: "",
-    destination: "", // Change from toDestination
+    destination: "",
     fromDate: null,
     toDate: null,
     group: "",
@@ -68,16 +68,6 @@ export default function Explore() {
 
       {isLoading ? (
         <ActivityIndicator size="large" color={Theme.colors.blue} />
-      ) : error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => setSearchParams({ ...searchParams })}
-          >
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
       ) : (
         <FlatList
           key={activeTab}
@@ -87,7 +77,7 @@ export default function Explore() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No {activeTab} found</Text>
+            <Text style={styles.emptyText}>No {activeTab} found</Text> // TODO: STYLE THIS
           }
         />
       )}

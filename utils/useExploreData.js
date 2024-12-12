@@ -1,21 +1,21 @@
+import { useState, useEffect } from "react";
 import { fetchFlightItems } from "./fetchFlightItems";
 import { fetchStayItems } from "./fetchStayItems";
 import { fetchActivityItems } from "./fetchActivityItems";
-import { useState, useEffect } from "react";
+
+const fetchFunctions = {
+  stays: fetchStayItems,
+  flights: fetchFlightItems,
+  activities: fetchActivityItems,
+};
 
 export const useExploreData = (searchParams) => {
   const [activeTab, setActiveTab] = useState("stays");
-  const [data, setData] = useState({
-    stays: [],
-    flights: [],
-    activities: [],
-  });
+  const [data, setData] = useState({ stays: [], flights: [], activities: [] });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    setError(null);
-
     if (!searchParams?.destination) {
       console.log("No destination provided, skipping API call");
       return;
@@ -23,37 +23,21 @@ export const useExploreData = (searchParams) => {
 
     const fetchData = async () => {
       setIsLoading(true);
-      console.log(`Fetching ${activeTab} data for:`, searchParams);
+      setError(null);
 
       try {
-        let transformedData = [];
-
-        switch (activeTab) {
-          case "stays":
-            transformedData = await fetchStayItems(searchParams);
-            break;
-          case "flights":
-            transformedData = await fetchFlightItems(searchParams);
-            break;
-          case "activities":
-            transformedData = await fetchActivityItems(searchParams);
-            break;
-        }
+        const fetchFunction = fetchFunctions[activeTab];
+        const transformedData = await fetchFunction(searchParams);
 
         setData((prevData) => ({
           ...prevData,
-          [activeTab]: transformedData,
+          [activeTab]: transformedData || [],
         }));
       } catch (err) {
-        console.error(`Error fetching ${activeTab} data:`, {
-          message: err.message,
-          stack: err.stack,
-          searchParams,
-        });
+        console.error(`Error fetching ${activeTab} data:`, err);
         setError(`Unable to load ${activeTab}. ${err.message}`);
       } finally {
         setIsLoading(false);
-        console.log(`Finished ${activeTab} data fetch`);
       }
     };
 
