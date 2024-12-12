@@ -1,63 +1,70 @@
-import { useState } from "react";
+import { fetchFlightItems } from "./fetchFlightItems";
+import { fetchStayItems } from "./fetchStayItems";
+import { fetchActivityItems } from "./fetchActivityItems";
+import { useState, useEffect } from "react";
 
-export const useExploreData = () => {
+export const useExploreData = (searchParams) => {
   const [activeTab, setActiveTab] = useState("stays");
-  const [data] = useState({
-    stays: [
-      {
-        id: "1",
-        title: "Flat in Shibuya City",
-        image: require("@/assets/japan.jpeg"),
-        source: "Airbnb",
-        cost: "123",
-      },
-      {
-        id: "2",
-        title: "Flat in Minato City",
-        image: require("@/assets/jetski.jpg"),
-        source: "Airbnb",
-        cost: "290",
-      },
-    ],
-    flights: [
-      {
-        id: "1",
-        title: "Tokyo to Singapore",
-        image: require("@/assets/japan.jpeg"),
-        source: "Japan Airlines",
-        cost: "450",
-      },
-      {
-        id: "2",
-        title: "Singapore to Seoul",
-        image: require("@/assets/jetski.jpg"),
-        source: "Korean Air",
-        cost: "380",
-      },
-    ],
-    activities: [
-      {
-        id: "1",
-        title: "Mount Fuji Tour",
-        image: require("@/assets/japan.jpeg"),
-        source: "Local Guide",
-        cost: "80",
-      },
-      {
-        id: "2",
-        title: "Tokyo Food Tour",
-        image: require("@/assets/jetski.jpg"),
-        source: "Foodie Tours",
-        cost: "45",
-      },
-    ],
+  const [data, setData] = useState({
+    stays: [],
+    flights: [],
+    activities: [],
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const getCurrentData = () => data[activeTab] || data.stays;
+  useEffect(() => {
+    setError(null);
+
+    if (!searchParams?.destination) {
+      console.log("No destination provided, skipping API call");
+      return;
+    }
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      console.log(`Fetching ${activeTab} data for:`, searchParams);
+
+      try {
+        let transformedData = [];
+
+        switch (activeTab) {
+          case "stays":
+            transformedData = await fetchStayItems(searchParams);
+            break;
+          case "flights":
+            transformedData = await fetchFlightItems(searchParams);
+            break;
+          case "activities":
+            transformedData = await fetchActivityItems(searchParams);
+            break;
+        }
+
+        setData((prevData) => ({
+          ...prevData,
+          [activeTab]: transformedData,
+        }));
+      } catch (err) {
+        console.error(`Error fetching ${activeTab} data:`, {
+          message: err.message,
+          stack: err.stack,
+          searchParams,
+        });
+        setError(`Unable to load ${activeTab}. ${err.message}`);
+      } finally {
+        setIsLoading(false);
+        console.log(`Finished ${activeTab} data fetch`);
+      }
+    };
+
+    fetchData();
+  }, [activeTab, searchParams]);
 
   return {
     activeTab,
     setActiveTab,
-    currentData: getCurrentData(),
+    currentData: data[activeTab] || [],
+    isLoading,
+    error,
   };
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,13 +11,34 @@ import { Picker } from "@react-native-picker/picker";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Theme from "@/assets/theme";
 
-export default function ExploreSearch() {
+export default function ExploreSearch({ onSearch }) {
   const [selectedGroup, setSelectedGroup] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   const [isFromDatePickerVisible, setFromDatePickerVisible] = useState(false);
   const [isToDatePickerVisible, setToDatePickerVisible] = useState(false);
+  const [fromDestination, setFromDestination] = useState("");
+  const [toDestination, setToDestination] = useState("");
+
+  const handleSearch = () => {
+    if (!fromDestination || !toDestination) {
+      alert("Please enter both departure and arrival destinations");
+      return;
+    }
+    if (!fromDate || !toDate) {
+      alert("Please select travel dates");
+      return;
+    }
+
+    onSearch({
+      fromDestination,
+      destination: toDestination,
+      fromDate: fromDate.toISOString().split("T")[0],
+      toDate: toDate.toISOString().split("T")[0],
+      group: selectedGroup,
+    });
+  };
 
   const groups = [
     { label: "Select a group", value: "" },
@@ -144,14 +165,29 @@ export default function ExploreSearch() {
         />
 
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Destination</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter destination"
-            placeholderTextColor="#999"
-          />
+          <Text style={styles.label}>Locations</Text>
+          <View style={styles.destinationContainer}>
+            <TextInput
+              style={[styles.dateInput, styles.input]}
+              placeholder="From"
+              placeholderTextColor="#999"
+              value={fromDestination}
+              onChangeText={setFromDestination}
+            />
+            <TextInput
+              style={[styles.dateInput, styles.input]}
+              placeholder="To"
+              placeholderTextColor="#999"
+              value={toDestination}
+              onChangeText={setToDestination}
+            />
+          </View>
         </View>
       </View>
+
+      <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+        <Text style={styles.searchButtonText}>Search</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -197,6 +233,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: Theme.sizes.spacingSmall,
   },
+  destinationContainer: {
+    flexDirection: "row",
+    gap: Theme.sizes.spacingSmall,
+  },
   dateInput: {
     flex: 1,
   },
@@ -231,5 +271,20 @@ const styles = StyleSheet.create({
     color: Theme.colors.blue,
     fontSize: Theme.sizes.textMedium,
     fontWeight: "600",
+  },
+  searchButton: {
+    backgroundColor: Theme.colors.blue,
+    paddingVertical: Theme.sizes.spacingSmall,
+    paddingHorizontal: Theme.sizes.spacingMedium,
+    borderRadius: 20, // Smaller border radius
+    marginTop: Theme.sizes.spacingMedium,
+    alignSelf: "center", // Center the button
+    minWidth: 100, // Set minimum width
+  },
+  searchButtonText: {
+    color: Theme.colors.white,
+    fontSize: Theme.sizes.textSmall, // Smaller font size
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

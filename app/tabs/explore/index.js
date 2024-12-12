@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -6,14 +6,29 @@ import {
   Text,
   StyleSheet,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
+
 import ExploreSearch from "@/components/ExploreSearch";
 import ExploreItem from "@/components/ExploreItem";
 import { useExploreData } from "@/utils/useExploreData";
 import Theme from "@/assets/theme";
 
 export default function Explore() {
-  const { activeTab, setActiveTab, currentData } = useExploreData();
+  const [searchParams, setSearchParams] = useState({
+    fromDestination: "",
+    destination: "", // Change from toDestination
+    fromDate: null,
+    toDate: null,
+    group: "",
+  });
+
+  const { activeTab, setActiveTab, currentData, isLoading, error } =
+    useExploreData(searchParams);
+
+  const handleSearch = (params) => {
+    setSearchParams(params);
+  };
 
   const renderItem = ({ item }) => (
     <ExploreItem
@@ -21,8 +36,9 @@ export default function Explore() {
       image={item.image}
       source={item.source}
       cost={item.cost}
+      details={item.details}
       onPress={() => {
-        console.log("Learn more about:", item.title);
+        console.log("Book flight to:", item.title, "Price:", item.cost);
       }}
     />
   );
@@ -43,20 +59,38 @@ export default function Explore() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ExploreSearch />
+      <ExploreSearch onSearch={handleSearch} />
       <View style={styles.buttonContainer}>
         <TabButton title="Stays" tabKey="stays" />
         <TabButton title="Flights" tabKey="flights" />
         <TabButton title="Activities" tabKey="activities" />
       </View>
-      <FlatList
-        key={activeTab}
-        data={currentData}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-      />
+
+      {isLoading ? (
+        <ActivityIndicator size="large" color={Theme.colors.blue} />
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => setSearchParams({ ...searchParams })}
+          >
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          key={activeTab}
+          data={currentData}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No {activeTab} found</Text>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -93,5 +127,10 @@ const styles = StyleSheet.create({
   },
   activeButtonText: {
     color: Theme.colors.white,
+  },
+  errorText: {
+    color: Theme.colors.coral,
+    textAlign: "center",
+    margin: Theme.sizes.spacingMedium,
   },
 });

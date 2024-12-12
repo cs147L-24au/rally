@@ -2,23 +2,38 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import Theme from "@/assets/theme";
 
-export default function ExploreItem({ title, image, source, cost, onPress }) {
+// In ExploreItem.js
+export default function ExploreItem({
+  title,
+  image,
+  source,
+  cost,
+  details,
+  onPress,
+}) {
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{title}</Text>
-      <Image source={image} style={styles.image} />
+      <View style={styles.imageContainer}>
+        <Image
+          source={typeof image === "string" ? { uri: image } : image}
+          style={styles.image}
+        />
+      </View>
 
       <View style={styles.infoContainer}>
         <View>
           <Text style={styles.source}>Source: {source}</Text>
-          <Text style={styles.cost}>Cost: ${cost}/night</Text>
+          <Text style={styles.cost}>Price: {cost}</Text>
+          {details?.direct && (
+            <Text style={styles.flightDetail}>Direct flight available</Text>
+          )}
         </View>
 
         <View style={styles.actionContainer}>
           <TouchableOpacity style={styles.learnMore} onPress={onPress}>
-            <Text style={styles.learnMoreText}>Learn more</Text>
+            <Text style={styles.learnMoreText}>Book now</Text>
           </TouchableOpacity>
-
           <TouchableOpacity style={styles.bookmark}>
             <Text>🔖</Text>
           </TouchableOpacity>
@@ -44,11 +59,20 @@ const styles = StyleSheet.create({
     color: Theme.colors.black,
     marginBottom: Theme.sizes.spacingSmall,
   },
-  image: {
+  imageContainer: {
     width: "100%",
     height: 200,
-    borderRadius: 8,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 10,
     marginBottom: Theme.sizes.spacingSmall,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  image: {
+    width: "100%", // Reduce width to prevent touching edges
+    height: "100%", // Reduce height to prevent touching edges
+    resizeMode: "fill",
   },
   infoContainer: {
     flexDirection: "row",
