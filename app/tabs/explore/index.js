@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   SafeAreaView,
   View,
@@ -8,32 +8,35 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
-
 import ExploreSearch from "@/components/ExploreSearch";
 import ExploreItem from "@/components/ExploreItem";
 import { useExploreData } from "@/utils/useExploreData";
 import Theme from "@/assets/theme";
 
 export default function Explore() {
-  const [searchParams, setSearchParams] = useState({
-    fromDestination: "",
-    destination: "",
-    fromDate: null,
-    toDate: null,
-    group: "",
-  });
+  const { activeTab, setActiveTab, currentData, isLoading, handleSearch } =
+    useExploreData();
 
-  const {
-    activeTab,
-    setActiveTab,
-    currentData,
-    isLoading,
-    error,
-    handleSearch,
-  } = useExploreData();
+  const handleTabChange = (newTab) => {
+    setActiveTab(newTab);
+  };
 
   const handleSearchSubmit = (params) => {
     handleSearch(params);
+  };
+
+  const TabButton = ({ title, tabKey }) => {
+    const isActive = activeTab === tabKey;
+    return (
+      <TouchableOpacity
+        style={[styles.button, isActive && styles.activeButton]}
+        onPress={() => handleTabChange(tabKey)}
+      >
+        <Text style={[styles.buttonText, isActive && styles.activeButtonText]}>
+          {title}
+        </Text>
+      </TouchableOpacity>
+    );
   };
 
   const renderItem = ({ item }) => (
@@ -43,27 +46,13 @@ export default function Explore() {
       source={item.source}
       cost={item.cost}
       details={item.details}
-      item={item} // Pass the full item
+      item={item}
     />
   );
 
-  const TabButton = ({ title, tabKey }) => {
-    const isActive = activeTab === tabKey;
-    return (
-      <TouchableOpacity
-        style={[styles.button, isActive && styles.activeButton]}
-        onPress={() => setActiveTab(tabKey)}
-      >
-        <Text style={[styles.buttonText, isActive && styles.activeButtonText]}>
-          {title}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      <ExploreSearch onSearch={handleSearchSubmit} />
+      <ExploreSearch onSearch={handleSearchSubmit} activeTab={activeTab} />
       <View style={styles.buttonContainer}>
         <TabButton title="Stays" tabKey="stays" />
         <TabButton title="Flights" tabKey="flights" />
@@ -74,14 +63,13 @@ export default function Explore() {
         <ActivityIndicator size="large" color={Theme.colors.blue} />
       ) : (
         <FlatList
-          key={activeTab}
           data={currentData}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No {activeTab} found</Text> // TODO: STYLE THIS
+            <Text style={styles.emptyText}>No {activeTab} found</Text>
           }
         />
       )}
@@ -94,16 +82,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Theme.colors.background,
   },
-  listContent: {
-    paddingBottom: Theme.sizes.spacingLarge,
-  },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     gap: Theme.sizes.spacingSmall,
     paddingHorizontal: Theme.sizes.spacingMedium,
     marginBottom: Theme.sizes.spacingMedium,
-    marginVertical: 3, 
+    marginVertical: 3,
   },
   button: {
     flex: 1,
@@ -123,16 +108,14 @@ const styles = StyleSheet.create({
   activeButtonText: {
     color: Theme.colors.white,
   },
+  listContent: {
+    paddingBottom: Theme.sizes.spacingLarge,
+  },
   emptyText: {
     fontFamily: "Avenir",
     fontWeight: "bold",
     fontSize: 20,
     color: Theme.colors.gray,
     textAlign: "center",
-  },
-  errorText: {
-    color: Theme.colors.coral,
-    textAlign: "center",
-    margin: Theme.sizes.spacingMedium,
   },
 });

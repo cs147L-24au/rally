@@ -1,18 +1,6 @@
 import { API_CONFIG, DEFAULT_IMAGES } from "./apiConfig";
 import { fetchWithAuth, logError } from "./apiUtils";
 
-const extractLocationData = (data) => {
-  const firstResult = data.data[0];
-  if (!firstResult?.geoId) {
-    throw new Error("No location found");
-  }
-
-  return {
-    geoId: firstResult.geoId,
-    name: firstResult.heading.htmlString.replace(/<\/?b>/g, ""),
-  };
-};
-
 const searchLocation = async (query) => {
   if (!query) return null;
 
@@ -20,21 +8,18 @@ const searchLocation = async (query) => {
     const url = API_CONFIG.activities.endpoint.locationSearch(query);
     const data = await fetchWithAuth(url, API_CONFIG.activities.host);
 
-    if (!data.status || !data.data?.length) {
-      throw new Error(`Could not find location for ${query}`);
-    }
-
-    return extractLocationData(data);
+    if (!data?.data?.[0]?.geoId) return null;
+    return { geoId: data.data[0].geoId };
   } catch (error) {
-    logError("Location search", error);
+    logError("Activity location search", error);
+    return null;
   }
 };
 
 const transformActivityData = (data) => {
-  // The attractions are in data.data.attractions
-  const attractions = data.data?.attractions || [];
+  if (!data?.data?.attractions) return [];
 
-  return attractions.map((activity) => ({
+  return data.data.attractions.map((activity) => ({
     type: "activity",
     id: activity.cardLink?.route?.typedParams?.contentId || "",
     title: activity.cardTitle?.string || "",
@@ -57,19 +42,14 @@ const transformActivityData = (data) => {
         isFree: !activity.merchandisingText?.htmlString,
         fromPrice: activity.merchandisingText?.htmlString || null,
       },
-      source: "TripAdvisor",
     },
   }));
 };
 
 export const fetchActivityItems = async (searchParams) => {
   try {
-    console.log("Activity Search Params:", searchParams);
-
     const location = await searchLocation(searchParams.destination);
-    if (!location) {
-      throw new Error("Could not find location");
-    }
+    if (!location) return [];
 
     const url = API_CONFIG.activities.endpoint.search({
       ...searchParams,
@@ -77,15 +57,9 @@ export const fetchActivityItems = async (searchParams) => {
     });
 
     const data = await fetchWithAuth(url, API_CONFIG.activities.host);
-    console.log("Activity Search Response:", {
-      url,
-      params: searchParams,
-      response: JSON.stringify(data, null, 2),
-    });
-
-    const transformedData = transformActivityData(data);
-    return transformedData;
+    return transformActivityData(data);
   } catch (error) {
     logError("Activities search", error);
+    return [];
   }
 };

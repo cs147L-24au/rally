@@ -1,197 +1,273 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
+  StyleSheet,
   View,
   Text,
   TextInput,
   TouchableOpacity,
   Modal,
-  StyleSheet,
+  Pressable,
+  Alert,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import Theme from "@/assets/theme";
 
-export default function ExploreSearch({ onSearch }) {
-  const [selectedGroup, setSelectedGroup] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [fromDate, setFromDate] = useState(null);
-  const [toDate, setToDate] = useState(null);
-  const [isFromDatePickerVisible, setFromDatePickerVisible] = useState(false);
-  const [isToDatePickerVisible, setToDatePickerVisible] = useState(false);
+// Add this helper function at the top of your component
+const formatDate = (date) => {
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+export default function ExploreSearch({ onSearch, activeTab }) {
   const [fromDestination, setFromDestination] = useState("");
-  const [toDestination, setToDestination] = useState("");
+  const [destination, setDestination] = useState("");
+  const [fromDate, setFromDate] = useState(new Date());
+  const [toDate, setToDate] = useState(new Date());
+  const [showFromPicker, setShowFromPicker] = useState(false);
+  const [showToPicker, setShowToPicker] = useState(false);
+
+  const validateInputs = () => {
+    // For flights, check both fromDestination and destination
+    if (activeTab === "flights") {
+      if (!fromDestination.trim()) {
+        Alert.alert("Missing Information", "Please enter a departure city");
+        return false;
+      }
+      if (!destination.trim()) {
+        Alert.alert("Missing Information", "Please enter a destination city");
+        return false;
+      }
+    } else {
+      // For stays and activities, only check destination
+      if (!destination.trim()) {
+        Alert.alert("Missing Information", "Please enter a destination");
+        return false;
+      }
+    }
+
+    // Validate dates
+    if (!fromDate) {
+      Alert.alert("Missing Information", "Please select a start date");
+      return false;
+    }
+    if (!toDate) {
+      Alert.alert("Missing Information", "Please select an end date");
+      return false;
+    }
+
+    // Ensure dates are not the same day and end date is after start date
+    const startDate = new Date(fromDate);
+    const endDate = new Date(toDate);
+
+    if (startDate.getTime() === endDate.getTime()) {
+      Alert.alert(
+        "Invalid Dates",
+        "Check-out date must be at least one day after check-in date"
+      );
+      return false;
+    }
+
+    if (endDate <= startDate) {
+      Alert.alert("Invalid Dates", "The end date must be after the start date");
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSearch = () => {
-    if (!fromDestination || !toDestination) {
-      alert("Please enter both departure and arrival destinations");
-      return;
+    if (validateInputs()) {
+      const formatLocalDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      const searchData = {
+        fromDestination:
+          activeTab === "flights" ? fromDestination.trim() : null,
+        destination: destination.trim(),
+        fromDate: formatLocalDate(fromDate),
+        toDate: formatLocalDate(toDate),
+      };
+
+      console.log("ExploreSearch - Sending search data:", searchData);
+      onSearch(searchData);
     }
-    if (!fromDate || !toDate) {
-      alert("Please select travel dates");
-      return;
+  };
+
+  // Update the date picker handlers to enforce minimum one day difference
+  const handleFromDateChange = (event, selectedDate) => {
+    setShowFromPicker(false);
+    if (selectedDate) {
+      setFromDate(selectedDate);
+
+      // If toDate is less than or equal to the new fromDate,
+      // set toDate to the day after fromDate
+      const nextDay = new Date(selectedDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      if (!toDate || toDate <= selectedDate) {
+        setToDate(nextDay);
+      }
     }
-
-    onSearch({
-      fromDestination,
-      destination: toDestination,
-      fromDate: fromDate.toISOString().split("T")[0],
-      toDate: toDate.toISOString().split("T")[0],
-      group: selectedGroup,
-    });
   };
 
-  const groups = [
-    { label: "Select a group", value: "" },
-    { label: "Adelfa", value: "Adelfa" },
-    { label: "Family", value: "Family" },
-    { label: "Friends", value: "Friends" },
-    { label: "Solo", value: "Solo" },
-  ];
-
-  const formatDate = (date) => {
-    if (!date) return "";
-    return date.toLocaleDateString("en-US", {
-      month: "numeric",
-      day: "numeric",
-      year: "2-digit",
-    });
+  const handleToDateChange = (event, selectedDate) => {
+    setShowToPicker(false);
+    if (selectedDate) {
+      // Ensure selected date is after fromDate
+      if (selectedDate > fromDate) {
+        setToDate(selectedDate);
+      } else {
+        Alert.alert(
+          "Invalid Date",
+          "Check-out date must be after check-in date"
+        );
+      }
+    }
   };
-
-  const handleFromDateConfirm = (date) => {
-    setFromDatePickerVisible(false);
-    setFromDate(date);
-  };
-
-  const handleToDateConfirm = (date) => {
-    setToDatePickerVisible(false);
-    setToDate(date);
-  };
-
-  const renderGroupPicker = () => (
-    <Modal
-      visible={showModal}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={() => {}}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Select Group</Text>
-            <TouchableOpacity
-              onPress={() => setShowModal(false)}
-              style={styles.doneButton}
-            >
-              <Text style={styles.doneButtonText}>Done</Text>
-            </TouchableOpacity>
-          </View>
-          <Picker
-            selectedValue={selectedGroup}
-            onValueChange={(itemValue) => {
-              setSelectedGroup(itemValue);
-              setShowModal(false);
-            }}
-            style={styles.picker}
-          >
-            {groups.map((group) => (
-              <Picker.Item
-                key={group.value}
-                label={group.label}
-                value={group.value}
-              />
-            ))}
-          </Picker>
-        </View>
-      </View>
-    </Modal>
-  );
-
   return (
-    <View style={styles.card}>
-      <View style={styles.tripInfo}>
+    <View style={styles.container}>
+      {/* Only show fromDestination input when activeTab is "flights" */}
+      {activeTab === "flights" && (
         <View style={styles.infoRow}>
+          <Text style={styles.label}>From</Text>
+          <TextInput
+            style={styles.input}
+            value={fromDestination}
+            onChangeText={setFromDestination}
+            placeholder="Departure city"
+            placeholderTextColor={Theme.colors.gray}
+          />
         </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Dates</Text>
-          <View style={styles.dateContainer}>
-            <TouchableOpacity
-              style={[styles.dateInput, styles.input]}
-              onPress={() => setFromDatePickerVisible(true)}
-            >
+      )}
+
+      <View style={styles.infoRow}>
+        <Text style={styles.label}>
+          {activeTab === "flights" ? "To" : "Destination"}
+        </Text>
+        <TextInput
+          style={styles.input}
+          value={destination}
+          onChangeText={setDestination}
+          placeholder="Where to?"
+          placeholderTextColor={Theme.colors.gray}
+        />
+      </View>
+
+      <View style={styles.dateContainer}>
+        <View style={styles.dateInput}>
+          <Text style={styles.label}>From</Text>
+          <Pressable onPress={() => setShowFromPicker(true)}>
+            <View style={styles.input}>
               <Text style={[styles.inputText, !fromDate && styles.placeholder]}>
-                {fromDate ? formatDate(fromDate) : "From"}
+                {fromDate ? formatDate(fromDate) : "Select date"}
               </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.dateInput, styles.input]}
-              onPress={() => setToDatePickerVisible(true)}
-            >
-              <Text style={[styles.inputText, !toDate && styles.placeholder]}>
-                {toDate ? formatDate(toDate) : "To"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+            </View>
+          </Pressable>
         </View>
 
-        <DateTimePickerModal
-          isVisible={isFromDatePickerVisible}
-          mode="date"
-          onConfirm={handleFromDateConfirm}
-          onCancel={() => setFromDatePickerVisible(false)}
-          minimumDate={new Date()}
-        />
-
-        <DateTimePickerModal
-          isVisible={isToDatePickerVisible}
-          mode="date"
-          onConfirm={handleToDateConfirm}
-          onCancel={() => setToDatePickerVisible(false)}
-          minimumDate={fromDate || new Date()}
-        />
-
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Locations</Text>
-          <View style={styles.destinationContainer}>
-            <TextInput
-              style={[styles.dateInput, styles.input]}
-              placeholder="From"
-              placeholderTextColor="#999"
-              value={fromDestination}
-              onChangeText={setFromDestination}
-            />
-            <TextInput
-              style={[styles.dateInput, styles.input]}
-              placeholder="To"
-              placeholderTextColor="#999"
-              value={toDestination}
-              onChangeText={setToDestination}
-            />
-          </View>
+        <View style={styles.dateInput}>
+          <Text style={styles.label}>To</Text>
+          <Pressable onPress={() => setShowToPicker(true)}>
+            <View style={styles.input}>
+              <Text style={[styles.inputText, !toDate && styles.placeholder]}>
+                {toDate ? formatDate(toDate) : "Select date"}
+              </Text>
+            </View>
+          </Pressable>
         </View>
       </View>
 
       <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
         <Text style={styles.searchButtonText}>Search</Text>
       </TouchableOpacity>
+
+      {showFromPicker && (
+        <Modal
+          transparent={true}
+          animationType="fade"
+          visible={showFromPicker}
+          onRequestClose={() => setShowFromPicker(false)}
+        >
+          <Pressable
+            style={styles.modalOverlay}
+            onPress={() => setShowFromPicker(false)}
+          >
+            <View style={styles.modalContent}>
+              <DateTimePicker
+                value={fromDate}
+                mode="date"
+                display="inline"
+                onChange={handleFromDateChange}
+                minimumDate={new Date()}
+              />
+            </View>
+          </Pressable>
+        </Modal>
+      )}
+
+      {showToPicker && (
+        <Modal
+          transparent={true}
+          animationType="fade"
+          visible={showToPicker}
+          onRequestClose={() => setShowToPicker(false)}
+        >
+          <Pressable
+            style={styles.modalOverlay}
+            onPress={() => setShowToPicker(false)}
+          >
+            <View style={styles.modalContent}>
+              <DateTimePicker
+                value={toDate}
+                mode="date"
+                display="inline"
+                onChange={handleToDateChange}
+                minimumDate={fromDate}
+              />
+            </View>
+          </Pressable>
+        </Modal>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
+  container: {
     backgroundColor: Theme.colors.white,
-    margin: Theme.sizes.spacingSmall,
-    borderRadius: 15,
-    padding: Theme.sizes.spacingSmall,
-    borderWidth: 1,
-    borderColor: Theme.colors.borderGray,
-    width: '90%',
-    alignSelf: "center", // Center the card horizontally
-    marginTop: 12, // Add more space below the header
+    padding: Theme.sizes.spacingMedium,
+    gap: Theme.sizes.spacingMedium,
+    marginBottom: Theme.sizes.spacingMedium, // Add margin at bottom of search container
   },
-  tripInfo: {
-    gap: Theme.sizes.spacingSmall,
+  searchButton: {
+    backgroundColor: Theme.colors.blue,
+    padding: Theme.sizes.spacingSmall, // Reduced padding
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    height: 40, // Reduced height from 56 to 40
+    shadowColor: Theme.colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  searchButtonText: {
+    color: Theme.colors.white,
+    fontSize: Theme.sizes.textMedium, // Reduced font size to match smaller height
+    fontWeight: "600",
+    letterSpacing: 0.5,
+    fontFamily: "Avenir",
   },
   infoRow: {
     gap: 2,
@@ -201,7 +277,6 @@ const styles = StyleSheet.create({
     color: Theme.colors.gray,
     fontFamily: "Avenir",
     fontWeight: "bold",
-    
   },
   input: {
     fontSize: Theme.sizes.textSmall,
@@ -218,6 +293,7 @@ const styles = StyleSheet.create({
   inputText: {
     fontSize: Theme.sizes.textSmall,
     color: Theme.colors.black,
+    fontFamily: "Avenir",
   },
   placeholder: {
     color: Theme.colors.gray,
@@ -251,37 +327,5 @@ const styles = StyleSheet.create({
     padding: Theme.sizes.spacingMedium,
     borderBottomWidth: 1,
     borderBottomColor: Theme.colors.borderGray,
-   
-  },
-  modalTitle: {
-    fontSize: Theme.sizes.textLarge,
-    fontWeight: "600",
-    color: Theme.colors.black,
-  
-  },
-  doneButton: {
-    padding: Theme.sizes.spacingSmall,
-  },
-  doneButtonText: {
-    color: Theme.colors.blue,
-    fontSize: Theme.sizes.textMedium,
-    fontWeight: "600",
-    fontFamily: "Avenir",
-  },
-  searchButton: {
-    backgroundColor: Theme.colors.blue,
-    paddingVertical: Theme.sizes.spacingSmall,
-    paddingHorizontal: Theme.sizes.spacingMedium,
-    borderRadius: 10, // Smaller border radius
-    marginTop: Theme.sizes.spacingMedium,
-    alignSelf: "center", // Center the button
-    minWidth: 100, // Set minimum width
-  },
-  searchButtonText: {
-    color: Theme.colors.white,
-    fontSize: Theme.sizes.textSmall, // Smaller font size
-    fontWeight: "600",
-    textAlign: "center",
-    fontFamily: "Avenir",
   },
 });

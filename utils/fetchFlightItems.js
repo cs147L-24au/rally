@@ -7,26 +7,19 @@ const searchAirport = async (query) => {
   try {
     const url = API_CONFIG.flights.endpoint.airportSearch(query);
     const data = await fetchWithAuth(url, API_CONFIG.flights.host);
+    const airport = data.data?.find((item) => item.type === "AIRPORT");
 
-    const airport = data.data.find((item) => item.type === "AIRPORT");
-    if (!airport) throw new Error("No airport found");
-
-    return {
-      code: `${airport.code}.AIRPORT`,
-      name: airport.name,
-      city: airport.cityName,
-    };
+    return airport ? { code: `${airport.code}.AIRPORT` } : null;
   } catch (error) {
     logError("Airport search", error);
+    return null;
   }
 };
 
-const formatDateTime = (dateTimeString) => {
-  const date = new Date(dateTimeString);
-  // Add timezone offset to get correct local time
-  const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-  const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
-  return adjustedDate.toLocaleString();
+const formatDuration = (minutes) => {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours}h ${mins}m`;
 };
 
 const transformFlightData = (data) => {
@@ -34,7 +27,7 @@ const transformFlightData = (data) => {
 
   return data.data.flightOffers.map((offer) => {
     const outboundFlight = offer.segments[0];
-    const returnFlight = offer.segments[1]; // Add return flight segment
+    const returnFlight = offer.segments[1];
     const outboundLeg = outboundFlight?.legs?.[0];
     const airline = outboundLeg?.carriersData?.[0];
 
@@ -46,44 +39,33 @@ const transformFlightData = (data) => {
       cost: `$${Math.round(offer.priceBreakdown.total.units)}`,
       source: airline?.name || "Multiple Airlines",
       details: {
-        // Flight basics
         direct: outboundFlight.legs.length === 1,
         outbound: {
-          departure: formatDateTime(outboundFlight.departureTime),
-          arrival: formatDateTime(outboundFlight.arrivalTime),
-          duration: `${Math.floor(
-            outboundFlight.totalTime / 3600
-          )}h ${Math.floor((outboundFlight.totalTime % 3600) / 60)}m`,
+          departure: new Date(outboundFlight.departureTime).toLocaleString(),
+          arrival: new Date(outboundFlight.arrivalTime).toLocaleString(),
+          duration: formatDuration(outboundFlight.totalTime),
           segments: outboundFlight.legs.map((leg) => ({
             flightNumber: leg.flightInfo.flightNumber,
             departure: new Date(leg.departureTime).toLocaleString(),
             arrival: new Date(leg.arrivalTime).toLocaleString(),
-            duration: `${Math.floor(leg.totalTime / 3600)}h ${Math.floor(
-              (leg.totalTime % 3600) / 60
-            )}m`,
+            duration: formatDuration(leg.totalTime),
             airline: leg.carriersData?.[0]?.name,
           })),
         },
         return: returnFlight
           ? {
-              departure: formatDateTime(returnFlight.departureTime),
-              arrival: formatDateTime(returnFlight.arrivalTime),
-              duration: `${Math.floor(
-                returnFlight.totalTime / 3600
-              )}h ${Math.floor((returnFlight.totalTime % 3600) / 60)}m`,
+              departure: new Date(returnFlight.departureTime).toLocaleString(),
+              arrival: new Date(returnFlight.arrivalTime).toLocaleString(),
+              duration: formatDuration(returnFlight.totalTime),
               segments: returnFlight.legs.map((leg) => ({
                 flightNumber: leg.flightInfo.flightNumber,
                 departure: new Date(leg.departureTime).toLocaleString(),
                 arrival: new Date(leg.arrivalTime).toLocaleString(),
-                duration: `${Math.floor(leg.totalTime / 3600)}h ${Math.floor(
-                  (leg.totalTime % 3600) / 60
-                )}m`,
+                duration: formatDuration(leg.totalTime),
                 airline: leg.carriersData?.[0]?.name,
               })),
             }
           : null,
-
-        // Airports
         airports: {
           departure: {
             code: outboundFlight.departureAirport.code,
@@ -98,8 +80,6 @@ const transformFlightData = (data) => {
             terminal: outboundFlight.arrivalTerminal,
           },
         },
-
-        // Rest of the details remain the same
         pricing: {
           base: offer.priceBreakdown.baseFare?.units,
           taxes: offer.priceBreakdown.tax?.units,
@@ -131,9 +111,7 @@ export const fetchFlightItems = async (searchParams) => {
       searchAirport(searchParams.destination),
     ]);
 
-    if (!fromAirport || !toAirport) {
-      throw new Error("Could not find one or both airports");
-    }
+    if (!fromAirport || !toAirport) return [];
 
     const url = API_CONFIG.flights.endpoint.search({
       fromAirport: fromAirport.code,
@@ -143,18 +121,9 @@ export const fetchFlightItems = async (searchParams) => {
     });
 
     const data = await fetchWithAuth(url, API_CONFIG.flights.host);
-
-    // Log raw flight search response
-    console.log("Flight Search Response:", {
-      url,
-      params: searchParams,
-      response: JSON.stringify(data, null, 2),
-    });
-
-    const transformedData = transformFlightData(data);
-
-    return transformedData;
+    return transformFlightData(data);
   } catch (error) {
     logError("Flight search", error);
+    return [];
   }
 };
