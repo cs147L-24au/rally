@@ -1,7 +1,6 @@
 import { StyleSheet, View, Text } from "react-native";
 import { Stack } from "expo-router";
 import Theme from "@/assets/theme";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function ProfileStackLayout() {
   return (
@@ -21,6 +20,14 @@ export default function ProfileStackLayout() {
           headerTitleAlign: "center",
         }}
       />
+      <Stack.Screen
+        name="chatbot"
+        options={{
+          headerTitle: "Evelyn",
+          headerTitleAlign: "center",
+          presentation: "card",
+        }}
+      />
     </Stack>
   );
 }
@@ -29,7 +36,6 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Theme.colors.backgroundPrimary,
   },
   headerText: {
     fontSize: 28,
