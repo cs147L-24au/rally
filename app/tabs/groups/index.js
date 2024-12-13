@@ -35,7 +35,7 @@ export default function Groups() {
   const navigateToGroupSummary = (groupName) => {
     router.push({
       pathname: "/tabs/groups/groupsummary",
-      params: { groupName }
+      params: { groupName: groupName },
     });
   };
 

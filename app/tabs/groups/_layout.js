@@ -26,17 +26,25 @@ export default function GroupsStackLayout() {
         options={{
           headerTitle: () => (
             <View style={styles.headerContainer}>
-              <Text style={styles.headerText}>Create Group</Text>
+              <Text style={styles.headerText}>Create New Group</Text>
             </View>
           ),
           headerTitleAlign: "center",
+          presentation: "modal",
+          headerBackVisible: true,
         }}
       />
       <Stack.Screen
         name="create-group-transition"
         options={{ 
-          headerShown: false, 
+          headerShown: false,
           presentation: "modal"
+        }}
+      />
+      <Stack.Screen
+        name="groupsummary"
+        options={{
+          headerShown: false,
         }}
       />
     </Stack>

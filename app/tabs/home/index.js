@@ -29,14 +29,11 @@ export default function Home() {
           contentContainerStyle={styles.scrollViewContent}
         >
           {/* Group Section */}
-          <Link href="/tabs/groups/creategroup" asChild>
+          <Link href="/tabs/groups/creategroup?presentation=modal" asChild>
             <TripPlanningCard
               title="Rally the Group Chat"
               buttonText="Create Group"
-              description="You give us who, where, and when and we'll give you everything else"
-              onPress={() => {
-                console.log("Navigating to Groups");
-              }}
+              description="You give us who, where, and we'll give you everything else"
             />
           </Link>
 
