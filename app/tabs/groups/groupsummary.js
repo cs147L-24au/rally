@@ -1,105 +1,91 @@
 import React from "react";
-import { View, Text, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, StyleSheet, SafeAreaView } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import Theme from "@/assets/theme";
 import { LinearGradient } from "expo-linear-gradient";
+import Theme from "@/assets/theme";
 import TopStayCard from "@/components/group/TopStayCard";
 import TopFlightCard from "@/components/group/TopFlightCard";
 import TopActivityCard from "@/components/group/TopActivityCard";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+
+// Mock data should be moved to a separate file in a real application
+const MOCK_GROUP_DATA = {
+  dates: "3/15/25 to 3/25/25",
+  destination: "Tokyo, Japan",
+  joinCode: "463619",
+  topStay: {
+    name: "Airbnb in Shibuya",
+    price: "$144 a night",
+    image: require("@/assets/stay-shibuya.png"),
+  },
+  topFlight: {
+    airline: "Japan Airlines",
+    price: "$688 round trip",
+    toJapan: {
+      from: "SFO",
+      to: "HND",
+      time: "12:30AM to 11:15PM",
+    },
+    fromJapan: {
+      from: "HND",
+      to: "SFO",
+      time: "6:14PM to 5:19PM",
+    },
+  },
+  topActivity: {
+    name: "Attend a tea ceremony",
+    date: "3/21",
+    image: require("@/assets/activity-tea-ceremony.png"),
+  },
+};
 
 export default function GroupCard() {
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const groupName = params.groupName;
+  const { groupName } = useLocalSearchParams();
 
-  // Mock data
-  const groupData = {
-    name: groupName,
-    dates: "3/15/25 to 3/25/25",
-    destination: "Tokyo, Japan",
-    joinCode: "463619",
-    topStay: {
-      name: "Airbnb in Shibuya",
-      price: "$144 a night",
-      image: require("@/assets/stay-shibuya.png"),
-    },
-    topFlight: {
-      airline: "Japan Airlines",
-      price: "$688 round trip",
-      toJapan: {
-        from: "SFO",
-        to: "HND",
-        time: "12:30AM to 11:15PM",
-      },
-      fromJapan: {
-        from: "HND",
-        to: "SFO",
-        time: "6:14PM to 5:19PM",
-      },
-    },
-    topActivity: {
-      name: "Attend a tea ceremony",
-      date: "3/21",
-      image: require("@/assets/activity-tea-ceremony.png"),
-    },
+  const handleNavigation = (route) => {
+    router.push(`/tabs/groups/${route}`);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        {/* Group Header */}
         <LinearGradient
           colors={["#00A1EC", "#C2D7F1"]}
           style={styles.headerContainer}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <Text style={styles.groupName}>{groupData.name}</Text>
+          <Text style={styles.groupName}>{groupName}</Text>
         </LinearGradient>
 
-        {/* Group Info Card */}
         <View style={styles.infoCard}>
-          <Text style={styles.infoText}>
-            <Text style={styles.infoLabel}>Dates: </Text>
-            {groupData.dates}
-          </Text>
-          <Text style={styles.infoText}>
-            <Text style={styles.infoLabel}>Destination: </Text>
-            {groupData.destination}
-          </Text>
-          <Text style={styles.infoText}>
-            <Text style={styles.infoLabel}>Join Code: </Text>
-            {groupData.joinCode}
-          </Text>
+          {[
+            { label: "Dates", value: MOCK_GROUP_DATA.dates },
+            { label: "Destination", value: MOCK_GROUP_DATA.destination },
+            { label: "Join Code", value: MOCK_GROUP_DATA.joinCode },
+          ].map(({ label, value }) => (
+            <Text key={label} style={styles.infoText}>
+              <Text style={styles.infoLabel}>{label}: </Text>
+              {value}
+            </Text>
+          ))}
         </View>
 
-        {/* Card Cards */}
         <TopStayCard
-          stay={groupData.topStay}
-          onPress={() => router.push("/tabs/groups/staydetails")}
+          stay={MOCK_GROUP_DATA.topStay}
+          onPress={() => handleNavigation("staydetails")}
         />
 
         <TopFlightCard
-          flight={groupData.topFlight}
-          onPress={() => router.push("/tabs/groups/flightdetails")}
+          flight={MOCK_GROUP_DATA.topFlight}
+          onPress={() => handleNavigation("flightdetails")}
         />
 
         <TopActivityCard
-          activity={groupData.topActivity}
-          onPress={() => router.push("/tabs/groups/activitydetails")}
+          activity={MOCK_GROUP_DATA.topActivity}
+          onPress={() => handleNavigation("activitydetails")}
         />
       </ScrollView>
-      <TouchableOpacity 
-        style={styles.addButton}
-        onPress={() => router.push("/tabs/groups/creategroup")}
-      >
-        <MaterialCommunityIcons
-          name="plus"
-          size={30}
-          color={Theme.colors.textPrimary}
-        />
-      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -113,7 +99,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 16,
     height: 150,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   groupName: {
     fontSize: 32,
@@ -142,14 +128,5 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontStyle: "italic",
     color: Theme.colors.textSecondary,
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: Theme.colors.white,
-    borderRadius: 50,
-    padding: 10,
-    elevation: 3,
   },
 });

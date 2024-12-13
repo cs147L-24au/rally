@@ -6,16 +6,30 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  Modal,
+  Pressable,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import Theme from "@/assets/theme";
+
+const formatDate = (date) => {
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
 
 export default function CreateGroup() {
   const router = useRouter();
   const [groupName, setGroupName] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
   const [destination, setDestination] = useState("");
   const [people, setPeople] = useState([
     { name: "", email: "" }
@@ -25,6 +39,36 @@ export default function CreateGroup() {
     const newPeople = [...people];
     newPeople[index][field] = value;
     setPeople(newPeople);
+  };
+
+  const handleStartDateChange = (event, selectedDate) => {
+    setShowStartPicker(false);
+    if (selectedDate) {
+      setStartDate(selectedDate);
+      
+      // If endDate is less than or equal to the new startDate,
+      // set endDate to the day after startDate
+      const nextDay = new Date(selectedDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      
+      if (!endDate || endDate <= selectedDate) {
+        setEndDate(nextDay);
+      }
+    }
+  };
+
+  const handleEndDateChange = (event, selectedDate) => {
+    setShowEndPicker(false);
+    if (selectedDate) {
+      if (selectedDate > startDate) {
+        setEndDate(selectedDate);
+      } else {
+        Alert.alert(
+          "Invalid Date",
+          "End date must be after start date"
+        );
+      }
+    }
   };
 
   const handleSubmit = () => {
@@ -56,20 +100,22 @@ export default function CreateGroup() {
 
           <Text style={styles.sectionTitle}>Dates</Text>
           <Text style={styles.label}>Start Date</Text>
-          <TextInput
-            style={styles.input}
-            value={startDate}
-            onChangeText={setStartDate}
-            placeholder="MM/DD/YYYY"
-          />
+          <Pressable onPress={() => setShowStartPicker(true)}>
+            <View style={styles.input}>
+              <Text style={styles.dateText}>
+                {formatDate(startDate)}
+              </Text>
+            </View>
+          </Pressable>
 
           <Text style={styles.label}>End Date</Text>
-          <TextInput
-            style={styles.input}
-            value={endDate}
-            onChangeText={setEndDate}
-            placeholder="MM/DD/YYYY"
-          />
+          <Pressable onPress={() => setShowEndPicker(true)}>
+            <View style={styles.input}>
+              <Text style={styles.dateText}>
+                {formatDate(endDate)}
+              </Text>
+            </View>
+          </Pressable>
 
           <Text style={styles.sectionTitle}>Destination</Text>
           <TextInput
@@ -78,23 +124,22 @@ export default function CreateGroup() {
             onChangeText={setDestination}
             placeholder="Enter destination"
           />
-
           <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>People</Text>
-            <View style={styles.headerButtons}>
-              <TouchableOpacity style={styles.headerButton} onPress={addPerson}>
-                <Text style={styles.headerButtonText}>+</Text>
+          <Text style={styles.sectionTitle}>People</Text>
+          <View style={styles.headerButtons}>
+            {people.length > 1 && (
+              <TouchableOpacity 
+                style={styles.headerButton} 
+                onPress={() => removePerson(people.length - 1)}
+              >
+                <Text style={styles.headerButtonText}>-</Text>
               </TouchableOpacity>
-              {people.length > 1 && (
-                <TouchableOpacity 
-                  style={styles.headerButton} 
-                  onPress={() => removePerson(people.length - 1)}
-                >
-                  <Text style={styles.headerButtonText}>-</Text>
-                </TouchableOpacity>
-              )}
-            </View>
+            )}
+            <TouchableOpacity style={styles.headerButton} onPress={addPerson}>
+              <Text style={styles.headerButtonText}>+</Text>
+            </TouchableOpacity>
           </View>
+        </View>
 
           <View style={styles.peopleSection}>
             <View style={styles.peopleHeader}>
@@ -127,6 +172,54 @@ export default function CreateGroup() {
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
             <Text style={styles.submitButtonText}>Submit</Text>
           </TouchableOpacity>
+
+          {showStartPicker && (
+            <Modal
+              transparent={true}
+              animationType="fade"
+              visible={showStartPicker}
+              onRequestClose={() => setShowStartPicker(false)}
+            >
+              <Pressable
+                style={styles.modalOverlay}
+                onPress={() => setShowStartPicker(false)}
+              >
+                <View style={styles.modalContent}>
+                  <DateTimePicker
+                    value={startDate}
+                    mode="date"
+                    display="inline"
+                    onChange={handleStartDateChange}
+                    minimumDate={new Date()}
+                  />
+                </View>
+              </Pressable>
+            </Modal>
+          )}
+
+          {showEndPicker && (
+            <Modal
+              transparent={true}
+              animationType="fade"
+              visible={showEndPicker}
+              onRequestClose={() => setShowEndPicker(false)}
+            >
+              <Pressable
+                style={styles.modalOverlay}
+                onPress={() => setShowEndPicker(false)}
+              >
+                <View style={styles.modalContent}>
+                  <DateTimePicker
+                    value={endDate}
+                    mode="date"
+                    display="inline"
+                    onChange={handleEndDateChange}
+                    minimumDate={startDate}
+                  />
+                </View>
+              </Pressable>
+            </Modal>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -226,5 +319,21 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: Theme.colors.blue,
     fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: Theme.colors.white,
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+  },
+  dateText: {
+    fontSize: 16,
+    color: Theme.colors.textPrimary,
   },
 });

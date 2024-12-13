@@ -29,7 +29,7 @@ export default function Home() {
           contentContainerStyle={styles.scrollViewContent}
         >
           {/* Group Section */}
-          <Link href="/tabs/groups/creategroup?presentation=modal" asChild>
+          <Link href="/tabs/groups" asChild>
             <TripPlanningCard
               title="Rally the Group Chat"
               buttonText="Create Group"
