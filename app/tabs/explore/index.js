@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
     gap: Theme.sizes.spacingSmall,
     paddingHorizontal: Theme.sizes.spacingMedium,
     marginBottom: Theme.sizes.spacingMedium,
+    marginVertical: 3, 
   },
   button: {
     flex: 1,
@@ -113,7 +114,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   activeButton: {
-    backgroundColor: Theme.colors.blue,
+    backgroundColor: Theme.colors.lightBlueHeader,
   },
   buttonText: {
     color: Theme.colors.blue,

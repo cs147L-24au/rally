@@ -2,7 +2,6 @@
 import { StyleSheet, View, Text } from "react-native";
 import { Stack } from "expo-router";
 import Theme from "@/assets/theme";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function FeedStackLayout() {
   return (
