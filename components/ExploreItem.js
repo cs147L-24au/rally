@@ -1,39 +1,27 @@
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, Alert } from "react-native";
-import Theme from "@/assets/theme";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  Alert,
+} from "react-native";
 import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Picker } from "@react-native-picker/picker";
+import Theme from "@/assets/theme";
 
 export default function ExploreItem({ title, image, source, cost, item }) {
   const router = useRouter();
-  const [isBookmarked, setIsBookmarked] = useState(false); // Track bookmark state
-  const [showModal, setShowModal] = useState(false); 
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState("");
 
   const handleCardPress = () => {
-    switch (item.type) {
-      case "flight":
-        router.push(
-          "/tabs/explore/flightDetails?item=" +
-            encodeURIComponent(JSON.stringify(item))
-        );
-        break;
-      case "activity":
-        router.push(
-          "/tabs/explore/activityDetails?item=" +
-            encodeURIComponent(JSON.stringify(item))
-        );
-        break;
-      case "stay":
-        router.push(
-          "/tabs/explore/stayDetails?item=" +
-            encodeURIComponent(JSON.stringify(item))
-        );
-        break;
-      default:
-        console.warn("Unknown item type:", item.type);
-    }
+    const route = `/tabs/explore/${item.type}Details`;
+    router.push(`${route}?item=${encodeURIComponent(JSON.stringify(item))}`);
   };
 
   const displayCost = () => {
@@ -42,30 +30,11 @@ export default function ExploreItem({ title, image, source, cost, item }) {
     return cost;
   };
 
-  const renderFlightInfo = () => {
-    if (item.type !== "flight") return null;
-    const isRoundTrip = item.details.return !== null;
-    return (
-      <View style={styles.flightInfo}>
-        <Text style={styles.flightType}>
-          {isRoundTrip ? "Round Trip" : "One Way"}
-        </Text>
-        <Text style={styles.flightDates}>
-          {new Date(item.details.outbound.departure).toLocaleDateString()}
-          {isRoundTrip &&
-            ` - ${new Date(item.details.return.arrival).toLocaleDateString()}`}
-        </Text>
-      </View>
-    );
-  };
-
   const handleBookmarkPress = () => {
     if (isBookmarked) {
-      // If already bookmarked, remove the bookmark
       setIsBookmarked(false);
       Alert.alert("Removed", `Removed from ${selectedGroup} group.`);
     } else {
-      // If not bookmarked, show the modal to select a group
       setShowModal(true);
     }
   };
@@ -75,8 +44,8 @@ export default function ExploreItem({ title, image, source, cost, item }) {
       Alert.alert("Error", "Please select a group first.");
       return;
     }
-    setIsBookmarked(true); // Change the icon to filled bookmark
-    setShowModal(false); // Close the modal
+    setIsBookmarked(true);
+    setShowModal(false);
     Alert.alert("Success", `Added to ${selectedGroup} group.`);
   };
 
@@ -100,7 +69,7 @@ export default function ExploreItem({ title, image, source, cost, item }) {
           </View>
           <Picker
             selectedValue={selectedGroup}
-            onValueChange={(itemValue) => setSelectedGroup(itemValue)}
+            onValueChange={setSelectedGroup}
             style={styles.picker}
           >
             <Picker.Item label="Select a group" value="" />
@@ -109,7 +78,10 @@ export default function ExploreItem({ title, image, source, cost, item }) {
             <Picker.Item label="Friends" value="Friends" />
             <Picker.Item label="Solo" value="Solo" />
           </Picker>
-          <TouchableOpacity style={styles.confirmButton} onPress={handleConfirmGroup}>
+          <TouchableOpacity
+            style={styles.confirmButton}
+            onPress={handleConfirmGroup}
+          >
             <Text style={styles.confirmButtonText}>Confirm</Text>
           </TouchableOpacity>
         </View>
@@ -117,24 +89,20 @@ export default function ExploreItem({ title, image, source, cost, item }) {
     </Modal>
   );
 
-
   return (
     <TouchableOpacity style={styles.card} onPress={handleCardPress}>
       <Text style={styles.title}>{title}</Text>
-      {renderFlightInfo()}
       <View style={styles.imageContainer}>
         <Image
           source={typeof image === "string" ? { uri: image } : image}
           style={styles.image}
         />
       </View>
-
       <View style={styles.infoContainer}>
         <View>
           <Text style={styles.source}>{source}</Text>
           <Text style={styles.cost}>{displayCost()}</Text>
         </View>
-        {/* Bookmark Icon */}
         <TouchableOpacity style={styles.bookmark} onPress={handleBookmarkPress}>
           <MaterialCommunityIcons
             name={isBookmarked ? "bookmark" : "bookmark-outline"}
@@ -143,7 +111,6 @@ export default function ExploreItem({ title, image, source, cost, item }) {
           />
         </TouchableOpacity>
       </View>
-      {/* Group Picker Modal */}
       {renderGroupPicker()}
     </TouchableOpacity>
   );
@@ -164,21 +131,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: Theme.colors.black,
     marginBottom: Theme.sizes.spacingSmall,
-    fontFamily: "Avenir", 
-  },
-  flightInfo: {
-    marginBottom: Theme.sizes.spacingSmall,
-  },
-  flightType: {
-    fontSize: Theme.sizes.textSmall,
-    color: Theme.colors.primary,
-    fontWeight: "600",
-    fontFamily: "Avenir",
-  },
-  flightDates: {
-    fontSize: Theme.sizes.textSmall,
-    color: Theme.colors.textSecondary,
-    marginTop: 2,
     fontFamily: "Avenir",
   },
   imageContainer: {
@@ -209,24 +161,8 @@ const styles = StyleSheet.create({
   cost: {
     fontSize: Theme.sizes.textMedium,
     color: Theme.colors.gray,
-    fontWeight: "500",
     fontFamily: "Avenir",
-    fontWeight: "bold"
-  },
-  actionContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Theme.sizes.spacingSmall,
-  },
-  learnMore: {
-    backgroundColor: Theme.colors.grayLight,
-    paddingHorizontal: Theme.sizes.spacingMedium,
-    paddingVertical: Theme.sizes.spacingSmall,
-    borderRadius: 20,
-  },
-  learnMoreText: {
-    color: Theme.colors.blue,
-    fontSize: Theme.sizes.textSmall,
+    fontWeight: "bold",
   },
   bookmark: {
     padding: Theme.sizes.spacingSmall / 2,

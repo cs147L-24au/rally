@@ -21,23 +21,6 @@ export default function ProfileStackLayout() {
           headerTitleAlign: "center",
         }}
       />
-      <Stack.Screen
-        name="groups"
-        options={{
-          headerTitle: () => (
-            <View style={styles.headerContainer}>
-              <MaterialCommunityIcons
-                size={40}
-                name="account-group"
-                color={Theme.colors.iconHighlighted}
-              />
-              <Text style={styles.headerText}>Groups</Text>
-            </View>
-          ),
-          headerTitleAlign: "center",
-          headerBackTitle: "Home",
-        }}
-      />
     </Stack>
   );
 }

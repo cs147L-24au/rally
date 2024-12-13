@@ -24,7 +24,7 @@ export default function Home() {
           </View>
           <Text style={styles.headerText}>RALLY</Text>
         </View>
-        <ScrollView 
+        <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollViewContent}
         >
@@ -48,7 +48,6 @@ export default function Home() {
               }}
             />
           </Link>
-    
 
           {/* Your Last Trip */}
           <TripSummaryCard
@@ -73,33 +72,33 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.background,
   },
   backgroundFill: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
     backgroundColor: Theme.colors.lightBlueHeader,
-    height: '30%',
-    zIndex: 1 
+    height: "30%",
+    zIndex: 1,
   },
   safeArea: {
     flex: 1,
     zIndex: 2,
   },
   headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 16,
   },
   logoContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
     borderRadius: 20,
     padding: 4,
     marginRight: 8,
   },
   logo: {
-    transform: [{rotate: '-45deg'}]
+    transform: [{ rotate: "-45deg" }],
   },
   headerText: {
     fontSize: 40,
