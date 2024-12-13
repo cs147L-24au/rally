@@ -8,7 +8,7 @@ export default function FeedStackLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: "Theme.colors.lightBlueHeader" },
+        headerStyle: { backgroundColor: Theme.colors.lightBlueHeader },
         headerTintColor: "white", 
       }}
     >
@@ -25,11 +25,6 @@ export default function FeedStackLayout() {
         options={{
           headerTitle: () => (
             <View style={styles.headerContainer}>
-              <MaterialCommunityIcons
-                size={40}
-                name="account-group"
-                color={Theme.colors.iconHighlighted}
-              />
               <Text style={styles.headerText}>Groups</Text>
             </View>
           ),
@@ -46,6 +41,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: Theme.colors.lightBlueHeader
   },
   headerText: {
     fontSize: 30,
