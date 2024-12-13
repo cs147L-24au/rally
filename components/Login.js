@@ -90,6 +90,11 @@ export default function Login() {
           </Text>
         </TouchableOpacity>
       </View>
+      <TouchableOpacity onPress={() => {}}>
+          <Text style={styles.signUpText}>
+            Don't have an account? Sign up here! 
+          </Text>
+        </TouchableOpacity>
     </View>
     </LinearGradient>
   );
@@ -170,5 +175,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: Theme.colors.white,
     fontFamily: "Avenir",
+  },
+  signUpText: {
+    marginTop: 20, 
+    fontSize: 16,
+    color: Theme.colors.textSecondary, 
+    fontFamily: "Avenir", 
+    textAlign: "center", 
+    textDecorationLine: "underline", 
+    fontStyle: "italic", 
   },
 });
