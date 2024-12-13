@@ -58,7 +58,6 @@ export default function Groups() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>My Groups</Text>
       </View>
       <FlatList
         data={groups}

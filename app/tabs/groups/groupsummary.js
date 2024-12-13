@@ -42,9 +42,9 @@ export default function GroupCard() {
   const router = useRouter();
   const { groupName } = useLocalSearchParams();
 
-  const handleNavigation = (route) => {
-    router.push(`/tabs/groups/${route}`);
-  };
+  // const handleNavigation = (route) => {
+  //   router.push(`/tabs/groups/${route}`);
+  // };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -73,17 +73,18 @@ export default function GroupCard() {
 
         <TopStayCard
           stay={MOCK_GROUP_DATA.topStay}
-          onPress={() => handleNavigation("staydetails")}
+          onPress={() => router.push("/tabs/groups/voting")}
         />
 
         <TopFlightCard
           flight={MOCK_GROUP_DATA.topFlight}
-          onPress={() => handleNavigation("flightdetails")}
+          onPress={() => router.push("/tabs/groups/voting")}
         />
 
         <TopActivityCard
           activity={MOCK_GROUP_DATA.topActivity}
-          onPress={() => handleNavigation("activitydetails")}
+          onPress={() => router.push("/tabs/groups/voting")}
+          // onPress={() => handleNavigation("activitydetails")}
         />
       </ScrollView>
     </SafeAreaView>
