@@ -123,6 +123,13 @@ const styles = StyleSheet.create({
   activeButtonText: {
     color: Theme.colors.white,
   },
+  emptyText: {
+    fontFamily: "Avenir",
+    fontWeight: "bold",
+    fontSize: 20,
+    color: Theme.colors.gray,
+    textAlign: "center",
+  },
   errorText: {
     color: Theme.colors.coral,
     textAlign: "center",
