@@ -68,7 +68,7 @@ export default function Groups() {
       />
       <TouchableOpacity 
         style={styles.addButton}
-        onPress={() => {/* TODO: Add new group logic */}}
+        onPress={() => router.push("/tabs/groups/creategroup")}
       >
         <MaterialCommunityIcons
           name="plus"
