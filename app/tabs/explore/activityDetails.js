@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import Theme from "@/assets/theme";
+import AddToGroupButton from "@/components/AddToGroupButton";
 
 export default function ActivityDetails() {
   const { item } = useLocalSearchParams();
@@ -72,23 +73,8 @@ export default function ActivityDetails() {
       </View>
 
       {/* Action Buttons */}
-      <View style={styles.actionContainer}>
-        <TouchableOpacity
-          style={[styles.button, styles.primaryButton]}
-          onPress={() => {
-            /* handle booking */
-          }}
-        >
-          <Text style={styles.primaryButtonText}>Book Now</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.secondaryButton]}
-          onPress={() => {
-            /* handle add to group */
-          }}
-        >
-          <Text style={styles.secondaryButtonText}>Add to Group</Text>
-        </TouchableOpacity>
+      <View style={styles.actionSection}>
+        <AddToGroupButton item={parsedItem} />
       </View>
     </ScrollView>
   );
@@ -183,34 +169,5 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.white,
     borderTopWidth: 1,
     borderTopColor: Theme.colors.borderGray,
-  },
-  button: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 12,
-    shadowColor: Theme.colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  primaryButton: {
-    backgroundColor: Theme.colors.primary,
-  },
-  secondaryButton: {
-    backgroundColor: Theme.colors.white,
-    borderWidth: 1,
-    borderColor: Theme.colors.primary,
-  },
-  primaryButtonText: {
-    color: Theme.colors.white,
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  secondaryButtonText: {
-    color: Theme.colors.primary,
-    fontSize: 18,
-    fontWeight: "600",
   },
 });

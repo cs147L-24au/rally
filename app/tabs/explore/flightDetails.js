@@ -8,11 +8,47 @@ import {
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import Theme from "@/assets/theme";
+import AddToGroupButton from "@/components/AddToGroupButton";
 
 export default function FlightDetails() {
   const { item } = useLocalSearchParams();
   const parsedItem = typeof item === "string" ? JSON.parse(item) : item;
   const { details } = parsedItem;
+
+  const renderFlightSection = (flight, title) => (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Departure</Text>
+        <Text style={styles.value}>{flight.departure}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Arrival</Text>
+        <Text style={styles.value}>{flight.arrival}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Duration</Text>
+        <Text style={styles.value}>{flight.duration}</Text>
+      </View>
+      {flight.segments.map((segment, index) => (
+        <View key={index} style={styles.segmentContainer}>
+          <Text style={styles.segmentTitle}>Flight {segment.flightNumber}</Text>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Airline</Text>
+            <Text style={styles.value}>{segment.airline}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Departure</Text>
+            <Text style={styles.value}>{segment.departure}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Arrival</Text>
+            <Text style={styles.value}>{segment.arrival}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
 
   return (
     <ScrollView style={styles.container}>
@@ -43,27 +79,11 @@ export default function FlightDetails() {
         </View>
       </View>
 
-      {/* Flight details section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Flight Details</Text>
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Departure</Text>
-          <Text style={styles.value}>{details.departure}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Arrival</Text>
-          <Text style={styles.value}>{details.arrival}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Duration</Text>
-          <Text style={styles.value}>{details.duration}</Text>
-        </View>
-        {details.direct && (
-          <View style={styles.directFlight}>
-            <Text style={styles.directFlightText}>Direct Flight ✈️</Text>
-          </View>
-        )}
-      </View>
+      {/* Outbound Flight */}
+      {renderFlightSection(details.outbound, "Outbound Flight")}
+
+      {/* Return Flight (if exists) */}
+      {details.return && renderFlightSection(details.return, "Return Flight")}
 
       {/* Airport Information */}
       <View style={styles.section}>
@@ -133,14 +153,7 @@ export default function FlightDetails() {
 
       {/* Add to Group button */}
       <View style={styles.actionSection}>
-        <TouchableOpacity
-          style={styles.addToGroupButton}
-          onPress={() => {
-            /* Add to group logic */
-          }}
-        >
-          <Text style={styles.addToGroupText}>Add to Group</Text>
-        </TouchableOpacity>
+        <AddToGroupButton item={parsedItem} />
       </View>
     </ScrollView>
   );
@@ -268,23 +281,16 @@ const styles = StyleSheet.create({
     borderTopColor: Theme.colors.borderGray,
     marginTop: Theme.sizes.spacingMedium,
   },
-  addToGroupButton: {
-    backgroundColor: Theme.colors.success,
+  segmentContainer: {
+    marginTop: Theme.sizes.spacingMedium,
     padding: Theme.sizes.spacingMedium,
+    backgroundColor: Theme.colors.grayLight,
     borderRadius: Theme.sizes.borderRadius,
-    alignItems: "center",
-    shadowColor: Theme.colors.shadow,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
   },
-  addToGroupText: {
-    color: Theme.colors.white,
-    fontSize: Theme.sizes.textLarge,
+  segmentTitle: {
+    fontSize: Theme.sizes.textMedium,
     fontWeight: "600",
+    color: Theme.colors.textPrimary,
+    marginBottom: Theme.sizes.spacingSmall,
   },
 });

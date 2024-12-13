@@ -11,6 +11,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Theme from "@/assets/theme";
 import { MaterialIcons } from "@expo/vector-icons";
+import AddToGroupButton from "@/components/AddToGroupButton";
 
 export default function StayDetails() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export default function StayDetails() {
       <View style={styles.header}>
         <Text style={styles.title}>{parsedItem.title}</Text>
         <View style={styles.ratingContainer}>
-          {[...Array(Math.floor(details.stars))].map((_, i) => (
+          {[...Array(Math.floor(details?.stars || 0))].map((_, i) => (
             <MaterialIcons
               key={i}
               name="star"
@@ -110,10 +111,6 @@ export default function StayDetails() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Price Breakdown</Text>
         <View style={styles.detailRow}>
-          <Text style={styles.label}>Price per Night</Text>
-          <Text style={styles.value}>${details.pricePerNight}</Text>
-        </View>
-        <View style={styles.detailRow}>
           <Text style={styles.label}>Base Total</Text>
           <Text style={styles.value}>
             ${details.basePrice * details.totalNights}
@@ -129,7 +126,15 @@ export default function StayDetails() {
           <Text style={styles.totalLabel}>
             Total for {details.totalNights} Nights
           </Text>
-          <Text style={styles.price}>{parsedItem.cost}</Text>
+          <Text style={styles.price}>
+            $
+            {details.basePrice * details.totalNights +
+              details.taxAndFees * details.totalNights}
+          </Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>Price per Night</Text>
+          <Text style={styles.value}>${details.pricePerNight}</Text>
         </View>
       </View>
 
@@ -147,18 +152,7 @@ export default function StayDetails() {
 
       {/* Add to Group Button */}
       <View style={styles.actionSection}>
-        <TouchableOpacity
-          style={[
-            styles.addToGroupButton,
-            isAdded && styles.addedToGroupButton,
-          ]}
-          onPress={handleAddToGroup}
-          disabled={isAdded}
-        >
-          <Text style={styles.addToGroupText}>
-            {isAdded ? "Added to Group" : "Add to Group"}
-          </Text>
-        </TouchableOpacity>
+        <AddToGroupButton item={parsedItem} />
       </View>
     </ScrollView>
   );
@@ -273,19 +267,5 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.white,
     marginTop: Theme.sizes.spacingSmall,
     marginBottom: Theme.sizes.spacingLarge,
-  },
-  addToGroupButton: {
-    backgroundColor: Theme.colors.primary,
-    padding: Theme.sizes.spacingMedium,
-    borderRadius: Theme.sizes.borderRadius,
-    alignItems: "center",
-  },
-  addedToGroupButton: {
-    backgroundColor: Theme.colors.success,
-  },
-  addToGroupText: {
-    color: Theme.colors.white,
-    fontSize: Theme.sizes.textLarge,
-    fontWeight: "600",
   },
 });

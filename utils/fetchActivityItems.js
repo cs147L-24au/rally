@@ -35,6 +35,7 @@ const transformActivityData = (data) => {
   const attractions = data.data?.attractions || [];
 
   return attractions.map((activity) => ({
+    type: "activity",
     id: activity.cardLink?.route?.typedParams?.contentId || "",
     title: activity.cardTitle?.string || "",
     image: activity.cardPhoto?.sizes?.urlTemplate

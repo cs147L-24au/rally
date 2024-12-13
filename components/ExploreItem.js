@@ -3,26 +3,31 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import Theme from "@/assets/theme";
 import { useRouter } from "expo-router";
 
-// In ExploreItem.js
 export default function ExploreItem({ title, image, source, cost, item }) {
   const router = useRouter();
 
   const handleLearnMore = () => {
-    if (item.details?.category) {
-      router.push(
-        "/tabs/explore/activityDetails?item=" +
-          encodeURIComponent(JSON.stringify(item))
-      );
-    } else if (item.details?.flightDetails) {
-      router.push(
-        "/tabs/explore/flightDetails?item=" +
-          encodeURIComponent(JSON.stringify(item))
-      );
-    } else {
-      router.push(
-        "/tabs/explore/stayDetails?item=" +
-          encodeURIComponent(JSON.stringify(item))
-      );
+    switch (item.type) {
+      case "flight":
+        router.push(
+          "/tabs/explore/flightDetails?item=" +
+            encodeURIComponent(JSON.stringify(item))
+        );
+        break;
+      case "activity":
+        router.push(
+          "/tabs/explore/activityDetails?item=" +
+            encodeURIComponent(JSON.stringify(item))
+        );
+        break;
+      case "stay":
+        router.push(
+          "/tabs/explore/stayDetails?item=" +
+            encodeURIComponent(JSON.stringify(item))
+        );
+        break;
+      default:
+        console.warn("Unknown item type:", item.type);
     }
   };
 
@@ -32,9 +37,27 @@ export default function ExploreItem({ title, image, source, cost, item }) {
     return cost;
   };
 
+  const renderFlightInfo = () => {
+    if (item.type !== "flight") return null;
+    const isRoundTrip = item.details.return !== null;
+    return (
+      <View style={styles.flightInfo}>
+        <Text style={styles.flightType}>
+          {isRoundTrip ? "Round Trip" : "One Way"}
+        </Text>
+        <Text style={styles.flightDates}>
+          {new Date(item.details.outbound.departure).toLocaleDateString()}
+          {isRoundTrip &&
+            ` - ${new Date(item.details.return.arrival).toLocaleDateString()}`}
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{title}</Text>
+      {renderFlightInfo()}
       <View style={styles.imageContainer}>
         <Image
           source={typeof image === "string" ? { uri: image } : image}
@@ -73,6 +96,19 @@ const styles = StyleSheet.create({
     color: Theme.colors.black,
     marginBottom: Theme.sizes.spacingSmall,
   },
+  flightInfo: {
+    marginBottom: Theme.sizes.spacingSmall,
+  },
+  flightType: {
+    fontSize: Theme.sizes.textSmall,
+    color: Theme.colors.primary,
+    fontWeight: "600",
+  },
+  flightDates: {
+    fontSize: Theme.sizes.textSmall,
+    color: Theme.colors.textSecondary,
+    marginTop: 2,
+  },
   imageContainer: {
     width: "100%",
     height: 200,
@@ -84,8 +120,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   image: {
-    width: "100%", // Reduce width to prevent touching edges
-    height: "100%", // Reduce height to prevent touching edges
+    width: "100%",
+    height: "100%",
     resizeMode: "fill",
   },
   infoContainer: {

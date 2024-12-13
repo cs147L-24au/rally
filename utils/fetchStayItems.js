@@ -34,14 +34,22 @@ const searchLocation = async (query) => {
   }
 };
 
-const transformHotelData = (data) => {
+const transformHotelData = (data, searchParams) => {
   if (!data?.data?.results?.hotelCards) return [];
+
+  // Calculate total nights - using the exact dates from searchParams
+  const fromDate = searchParams.fromDate;
+  const toDate = searchParams.toDate;
+  const totalNights = Math.ceil(
+    (new Date(toDate) - new Date(fromDate)) / (1000 * 60 * 60 * 24)
+  );
 
   return data.data.results.hotelCards.map((hotel) => {
     const lowestPrice = hotel.lowestPrice;
     const review = hotel.reviewsSummary;
 
     return {
+      type: "stay",
       id: hotel.hotelId,
       title: hotel.name,
       image: hotel.images?.[0] || DEFAULT_IMAGES.HOTEL,
@@ -53,6 +61,11 @@ const transformHotelData = (data) => {
         distance: hotel.distance,
         landmark: hotel.relevantPoiDistance,
 
+        // Dates and Duration - using the exact dates from searchParams
+        checkIn: fromDate,
+        checkOut: toDate,
+        totalNights: totalNights,
+
         // Location
         coordinates: hotel.coordinates,
 
@@ -63,30 +76,12 @@ const transformHotelData = (data) => {
         reviewImage: review?.imageUrl,
 
         // Pricing
-        rawPrice: lowestPrice?.rawPrice,
-        basePrice: lowestPrice?.rawBasePrice,
-        taxAndFees: lowestPrice?.rawTaxAndFees,
+        pricePerNight: Math.round(lowestPrice?.rawPrice || 0),
+        basePrice: Math.round((lowestPrice?.rawBasePrice || 0) / totalNights),
+        taxAndFees: Math.round((lowestPrice?.rawTaxAndFees || 0) / totalNights),
 
-        // Additional Providers
-        otherProviders:
-          hotel.otherPrices?.map((provider) => ({
-            name: provider.name,
-            price: provider.price,
-            rawPrice: provider.rawPrice,
-            logo: provider.logo,
-            url: provider.url,
-          })) || [],
-
-        // Property Features
-        highlights:
-          hotel.confidentMessages?.map((msg) => ({
-            type: msg.type,
-            score: msg.score,
-            icon: msg.icon,
-            message: msg.message,
-          })) || [],
-
-        // Booking
+        // Additional Info
+        highlights: hotel.confidentMessages || [],
         bookingUrl: lowestPrice?.url || null,
       },
     };
@@ -138,7 +133,7 @@ export const fetchStayItems = async (searchParams) => {
       throw new Error("Search timed out without complete results");
     }
 
-    const transformedData = transformHotelData(finalData);
+    const transformedData = transformHotelData(finalData, searchParams);
 
     // // Log transformed data
     // console.log("Transformed Stay Data:", {

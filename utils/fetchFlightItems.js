@@ -21,15 +21,25 @@ const searchAirport = async (query) => {
   }
 };
 
+const formatDateTime = (dateTimeString) => {
+  const date = new Date(dateTimeString);
+  // Add timezone offset to get correct local time
+  const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+  const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
+  return adjustedDate.toLocaleString();
+};
+
 const transformFlightData = (data) => {
   if (!data?.data?.flightOffers) return [];
 
   return data.data.flightOffers.map((offer) => {
     const outboundFlight = offer.segments[0];
+    const returnFlight = offer.segments[1]; // Add return flight segment
     const outboundLeg = outboundFlight?.legs?.[0];
     const airline = outboundLeg?.carriersData?.[0];
 
     return {
+      type: "flight",
       id: offer.token,
       title: `${outboundFlight.departureAirport.cityName} to ${outboundFlight.arrivalAirport.cityName}`,
       image: airline?.logo || DEFAULT_IMAGES.FLIGHT,
@@ -38,11 +48,40 @@ const transformFlightData = (data) => {
       details: {
         // Flight basics
         direct: outboundFlight.legs.length === 1,
-        departure: new Date(outboundFlight.departureTime).toLocaleString(),
-        arrival: new Date(outboundFlight.arrivalTime).toLocaleString(),
-        duration: `${Math.floor(outboundFlight.totalTime / 3600)}h ${Math.floor(
-          (outboundFlight.totalTime % 3600) / 60
-        )}m`,
+        outbound: {
+          departure: formatDateTime(outboundFlight.departureTime),
+          arrival: formatDateTime(outboundFlight.arrivalTime),
+          duration: `${Math.floor(
+            outboundFlight.totalTime / 3600
+          )}h ${Math.floor((outboundFlight.totalTime % 3600) / 60)}m`,
+          segments: outboundFlight.legs.map((leg) => ({
+            flightNumber: leg.flightInfo.flightNumber,
+            departure: new Date(leg.departureTime).toLocaleString(),
+            arrival: new Date(leg.arrivalTime).toLocaleString(),
+            duration: `${Math.floor(leg.totalTime / 3600)}h ${Math.floor(
+              (leg.totalTime % 3600) / 60
+            )}m`,
+            airline: leg.carriersData?.[0]?.name,
+          })),
+        },
+        return: returnFlight
+          ? {
+              departure: formatDateTime(returnFlight.departureTime),
+              arrival: formatDateTime(returnFlight.arrivalTime),
+              duration: `${Math.floor(
+                returnFlight.totalTime / 3600
+              )}h ${Math.floor((returnFlight.totalTime % 3600) / 60)}m`,
+              segments: returnFlight.legs.map((leg) => ({
+                flightNumber: leg.flightInfo.flightNumber,
+                departure: new Date(leg.departureTime).toLocaleString(),
+                arrival: new Date(leg.arrivalTime).toLocaleString(),
+                duration: `${Math.floor(leg.totalTime / 3600)}h ${Math.floor(
+                  (leg.totalTime % 3600) / 60
+                )}m`,
+                airline: leg.carriersData?.[0]?.name,
+              })),
+            }
+          : null,
 
         // Airports
         airports: {
@@ -60,7 +99,7 @@ const transformFlightData = (data) => {
           },
         },
 
-        // Pricing
+        // Rest of the details remain the same
         pricing: {
           base: offer.priceBreakdown.baseFare?.units,
           taxes: offer.priceBreakdown.tax?.units,
@@ -68,15 +107,11 @@ const transformFlightData = (data) => {
           total: offer.priceBreakdown.total.units,
           currency: offer.priceBreakdown.total.currencyCode,
         },
-
-        // Airline
         airline: {
           name: airline?.name,
           code: airline?.code,
           logo: airline?.logo,
         },
-
-        // Booking
         booking: {
           refundable: offer.brandedFareInfo?.features?.some(
             (f) => f.featureName === "REFUNDABLE"
@@ -84,17 +119,6 @@ const transformFlightData = (data) => {
           cabinClass: outboundLeg.cabinClass,
           seatsAvailable: offer.seatAvailability?.numberOfSeatsAvailable,
         },
-
-        // Flight segments
-        segments: outboundFlight.legs.map((leg) => ({
-          flightNumber: leg.flightInfo.flightNumber,
-          departure: new Date(leg.departureTime).toLocaleString(),
-          arrival: new Date(leg.arrivalTime).toLocaleString(),
-          duration: `${Math.floor(leg.totalTime / 3600)}h ${Math.floor(
-            (leg.totalTime % 3600) / 60
-          )}m`,
-          airline: leg.carriersData?.[0]?.name,
-        })),
       },
     };
   });
