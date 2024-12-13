@@ -3,13 +3,13 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Theme from "@/assets/theme";
 
 import { Tabs } from "expo-router";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet } from "react-native";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "black",
+        tabBarActiveTintColor: Theme.colors.blue,
         headerStyle: {
           backgroundColor: Theme.colors.backgroundPrimary,
         },

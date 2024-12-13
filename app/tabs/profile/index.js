@@ -5,6 +5,7 @@ import {
   View,
   TouchableOpacity,
   Alert,
+  Image
 } from "react-native";
 
 import { useRouter } from "expo-router";
@@ -39,15 +40,19 @@ export default function Profile() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.userContainer}>
-        <View style={styles.userTextContainer}>
-          <Text style={styles.title}>Logged in as: </Text>
-          <TouchableOpacity onPress={() => signOut()}>
-            <Text style={styles.buttonText}>Sign out</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.text}>Dantheman123</Text>
+      {/* Profile Header */}
+      <View style={styles.profileHeader}>
+        <Image
+          source={require("@/assets/penguin.png")}
+          style={styles.avatar}
+        />
+        <Text style={styles.greeting}>Hi, Kevina!</Text>
       </View>
+      {/* Logout Button */}
+      <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
+        <Text style={styles.logoutButtonText}>Log Out</Text>
+      </TouchableOpacity>
+      
     </SafeAreaView>
   );
 }
@@ -55,34 +60,40 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Theme.colors.backgroundPrimary,
+    backgroundColor: Theme.colors.background,
+    justifyContent: "space-between", 
   },
-  postTitle: {
-    padding: 12,
+  profileHeader: {
+    flexDirection: "row", 
+    alignItems: "center", 
+    marginTop: 20, 
+    marginLeft: 16, 
   },
-  userContainer: {
-    width: "100%",
-    marginTop: 12,
-    paddingHorizontal: 12,
+  avatar: {
+    width: 60, 
+    height: 60,
+    borderRadius: 35,
+    marginRight: 12, 
   },
-  userTextContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  title: {
-    color: Theme.colors.textPrimary,
-    fontSize: Theme.sizes.textMedium,
+  greeting: {
+    fontSize: 28, 
     fontWeight: "bold",
+    color: Theme.colors.blue, 
+    fontFamily: "Avenir",
   },
-  text: {
-    color: Theme.colors.textPrimary,
-    fontSize: Theme.sizes.textMedium,
-    paddingLeft: 8,
+  logoutButton: {
+    backgroundColor: Theme.colors.blue,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 10, 
+    alignSelf: "flex-end", 
+    marginRight: 16, 
+    marginBottom: 16, 
   },
-  buttonText: {
+  logoutButtonText: {
+    color: "white",
     fontWeight: "bold",
-    color: Theme.colors.textHighlighted,
-    fontSize: Theme.sizes.textMedium,
+    fontSize: 16,
+    textAlign: "center",
   },
 });

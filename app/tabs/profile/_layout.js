@@ -7,7 +7,7 @@ export default function ProfileStackLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: Theme.colors.backgroundPrimary },
+        headerStyle: { backgroundColor: Theme.colors.lightBlueHeader },
       }}
     >
       <Stack.Screen
@@ -15,12 +15,7 @@ export default function ProfileStackLayout() {
         options={{
           headerTitle: () => (
             <View style={styles.headerContainer}>
-              <MaterialCommunityIcons
-                size={40}
-                name="airplane"
-                color={Theme.colors.iconHighlighted}
-              />
-              <Text style={styles.headerText}>Rally</Text>
+              <Text style={styles.headerText}>Profile</Text>
             </View>
           ),
           headerTitleAlign: "center",
@@ -54,8 +49,9 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.backgroundPrimary,
   },
   headerText: {
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: "bold",
-    color: Theme.colors.textPrimary,
+    color: "#FFFFFF",
+    fontFamily: "Avenir",
   },
 });

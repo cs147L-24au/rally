@@ -1,3 +1,4 @@
+// _layout.js
 import { StyleSheet, View, Text } from "react-native";
 import { Stack } from "expo-router";
 import Theme from "@/assets/theme";
@@ -7,25 +8,18 @@ export default function FeedStackLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: Theme.colors.backgroundPrimary },
+        headerStyle: { backgroundColor: "Theme.colors.lightBlueHeader" },
+        headerTintColor: "white", 
       }}
     >
+      {/* Home Screen */}
       <Stack.Screen
         name="index"
         options={{
-          headerTitle: () => (
-            <View style={styles.headerContainer}>
-              <MaterialCommunityIcons
-                size={40}
-                name="airplane"
-                color={Theme.colors.iconHighlighted}
-              />
-              <Text style={styles.headerText}>Rally</Text>
-            </View>
-          ),
-          headerTitleAlign: "center",
+          headerShown: false, 
         }}
       />
+      {/* Groups Screen */}
       <Stack.Screen
         name="groups"
         options={{
@@ -43,40 +37,6 @@ export default function FeedStackLayout() {
           headerBackTitle: "Home",
         }}
       />
-      <Stack.Screen
-        name="destinations"
-        options={{
-          headerTitle: () => (
-            <View style={styles.headerContainer}>
-              <MaterialCommunityIcons
-                size={40}
-                name="earth"
-                color={Theme.colors.iconHighlighted}
-              />
-              <Text style={styles.headerText}>Destinations</Text>
-            </View>
-          ),
-          headerTitleAlign: "center",
-          headerBackTitle: "Home",
-        }}
-      />
-      <Stack.Screen
-        name="activities"
-        options={{
-          headerTitle: () => (
-            <View style={styles.headerContainer}>
-              <MaterialCommunityIcons
-                size={40}
-                name="run"
-                color={Theme.colors.iconHighlighted}
-              />
-              <Text style={styles.headerText}>Activities</Text>
-            </View>
-          ),
-          headerTitleAlign: "center",
-          headerBackTitle: "Home",
-        }}
-      />
     </Stack>
   );
 }
@@ -85,11 +45,14 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Theme.colors.backgroundPrimary,
+    justifyContent: "center",
   },
   headerText: {
-    fontSize: 20,
+    fontSize: 30,
+    fontFamily: "Avenir",
+    color: "white",
     fontWeight: "bold",
-    color: Theme.colors.textPrimary,
+    marginLeft: 8,
   },
 });
+

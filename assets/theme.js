@@ -2,7 +2,7 @@ export default {
   colors: {
     // Primary Colors
     coral: "#F26F6A", // Coral color for highlights, buttons, and active states
-    blue: "#4A90E2", // Light blue for accents (header background or gradients)
+    blue: "#01A1EC", // Light blue for accents (header background or gradients)
     white: "#FFFFFF", // Main background and text for buttons
     black: "#232323", // Primary text and icon color
     grayLight: "#F8F9FA", // Off-white/very light gray for secondary backgrounds
@@ -10,6 +10,7 @@ export default {
     grayDark: "#55595c", // Less prominent text and icons
     borderGray: "#E0E0E0", // Borders for cards or tab bar
     background: "#ECECEC",
+    lightBlueHeader: "#64BFEF",
   },
   sizes: {
     // Icon Sizes

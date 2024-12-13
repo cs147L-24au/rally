@@ -29,25 +29,28 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
     color: Theme.colors.black,
-    marginBottom: 10,
+    marginBottom: 2,
     textAlign: "center",
+    fontFamily: "Avenir",
+    fontStyle: "italic"
   },
   button: {
-    backgroundColor: Theme.colors.coral, // Button background color
-    borderRadius: 25,
-    paddingVertical: 12,
+    backgroundColor: Theme.colors.blue, 
+    borderRadius: 10,
+    paddingVertical: 8,
     paddingHorizontal: 20,
-    marginVertical: 16,
+    marginVertical: 9,
     alignItems: "center",
-    width: "80%", // Set button width relative to the card
+    width: "80%", 
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    color: Theme.colors.white, // Button text color
+    color: Theme.colors.white, 
+    fontFamily: "Avenir", 
   },
   description: {
     fontSize: 14,
