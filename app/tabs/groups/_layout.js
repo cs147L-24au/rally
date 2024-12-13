@@ -7,7 +7,7 @@ export default function GroupsStackLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: Theme.colors.backgroundPrimary },
+        headerStyle: { backgroundColor: Theme.colors.lightBlueHeader },
       }}
     >
       <Stack.Screen
@@ -19,6 +19,24 @@ export default function GroupsStackLayout() {
             </View>
           ),
           headerTitleAlign: "center",
+        }}
+      />
+      <Stack.Screen
+        name="creategroup"
+        options={{
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>Create Group</Text>
+            </View>
+          ),
+          headerTitleAlign: "center",
+        }}
+      />
+      <Stack.Screen
+        name="create-group-transition"
+        options={{ 
+          headerShown: false, 
+          presentation: "modal"
         }}
       />
     </Stack>
@@ -34,6 +52,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 20,
     fontWeight: "bold",
-    color: Theme.colors.textPrimary,
+    color: Theme.colors.white,
+    fontFamily: "Avenir",
   },
 });

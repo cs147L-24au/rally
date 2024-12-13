@@ -29,7 +29,7 @@ export default function Home() {
           contentContainerStyle={styles.scrollViewContent}
         >
           {/* Group Section */}
-          <Link href="/tabs/home/groups" asChild>
+          <Link href="/tabs/groups/creategroup" asChild>
             <TripPlanningCard
               title="Rally the Group Chat"
               buttonText="Create Group"
@@ -41,14 +41,17 @@ export default function Home() {
           </Link>
 
           {/* Explore Section */}
-          <TripPlanningCard
-            title="Explore Your Options"
-            buttonText="Visit Explore Page"
-            description="Find flights, activities, and stays for any location you want!"
-            onPress={() => {
-              console.log("Explore page button pressed");
-            }}
-          />
+          <Link href="/tabs/explore" asChild>
+            <TripPlanningCard
+              title="Explore Your Options"
+              buttonText="Visit Explore Page"
+              description="Find flights, activities, and stays for any location you want!"
+              onPress={() => {
+                console.log("Explore page button pressed");
+              }}
+            />
+          </Link>
+    
 
           {/* Your Last Trip */}
           <TripSummaryCard

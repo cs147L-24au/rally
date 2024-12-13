@@ -11,6 +11,7 @@ export default {
     borderGray: "#E0E0E0", // Borders for cards or tab bar
     background: "#ECECEC",
     lightBlueHeader: "#64BFEF",
+    lightestBlue: "#EAF7FF",
   },
   sizes: {
     // Icon Sizes
