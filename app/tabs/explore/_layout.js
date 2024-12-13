@@ -1,13 +1,19 @@
 import { StyleSheet, View, Text } from "react-native";
 import { Stack } from "expo-router";
 import Theme from "@/assets/theme";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function ExploreStackLayout() {
   return (
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: Theme.colors.lightBlueHeader },
+        headerTintColor: Theme.colors.white, 
+        headerBackTitleVisible: false, 
+        headerBackImage: () => (
+          <View style={styles.backButtonContainer}>
+            <Text style={styles.backArrow}>←</Text>
+          </View>
+        ),
       }}
     >
       <Stack.Screen
@@ -24,25 +30,34 @@ export default function ExploreStackLayout() {
       <Stack.Screen
         name="flightDetails"
         options={{
-          headerTitle: "Flight Details",
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>Flight Details</Text>
+            </View>
+          ),
           headerTitleAlign: "center",
-          presentation: "card",
         }}
       />
       <Stack.Screen
         name="stayDetails"
         options={{
-          headerTitle: "Stay Details",
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>Stay Details</Text>
+            </View>
+          ),
           headerTitleAlign: "center",
-          presentation: "card",
         }}
       />
       <Stack.Screen
         name="activityDetails"
         options={{
-          headerTitle: "Activity Details",
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>Activity Details</Text>
+            </View>
+          ),
           headerTitleAlign: "center",
-          presentation: "card",
         }}
       />
     </Stack>
@@ -61,4 +76,13 @@ const styles = StyleSheet.create({
     color: Theme.colors.white,
     fontFamily: "Avenir",
   },
+  backButtonContainer: {
+    paddingLeft: 30,
+  },
+  backArrow: {
+    fontSize: 24,
+    color: Theme.colors.white, 
+    fontWeight: "bold",
+  },
 });
+
