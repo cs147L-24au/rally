@@ -1,34 +1,40 @@
-import { StyleSheet, View, Text, SafeAreaView, Animated } from "react-native";
+import { StyleSheet, View, SafeAreaView, Animated } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import Theme from "@/assets/theme";
 
+const SLIDE_DISTANCE = 400;
+const SLIDE_DURATION = 600;
+const TRANSITION_DELAY = 2000;
+const NAVIGATION_DELAY = 2500;
+
 export default function CreateTransition() {
   const router = useRouter();
-  const slideAnim = useRef(new Animated.Value(400)).current; // Start from right side of screen
+  const slideAnim = useRef(new Animated.Value(SLIDE_DISTANCE)).current;
 
   useEffect(() => {
-    // Slide in animation
-    Animated.timing(slideAnim, {
+    const slideIn = Animated.timing(slideAnim, {
       toValue: 0,
-      duration: 600,
+      duration: SLIDE_DURATION,
       useNativeDriver: true,
-    }).start();
+    });
 
-    // After 1 second, slide out to the left
+    const slideOut = Animated.timing(slideAnim, {
+      toValue: -SLIDE_DISTANCE,
+      duration: SLIDE_DURATION,
+      useNativeDriver: true,
+    });
+
+    slideIn.start();
+
     const slideOutTimer = setTimeout(() => {
-      Animated.timing(slideAnim, {
-        toValue: -400,
-        duration: 600,
-        useNativeDriver: true,
-      }).start();
-    }, 2000);
+      slideOut.start();
+    }, TRANSITION_DELAY);
 
-    // Navigate after animations complete
     const navigationTimer = setTimeout(() => {
-      router.replace("/tabs/groups");
-    }, 2500);
+      router.navigate("/tabs/groups");
+    }, NAVIGATION_DELAY);
 
     return () => {
       clearTimeout(slideOutTimer);
@@ -48,9 +54,7 @@ export default function CreateTransition() {
           <Animated.Text
             style={[
               styles.title,
-              {
-                transform: [{ translateX: slideAnim }],
-              },
+              { transform: [{ translateX: slideAnim }] },
             ]}
           >
             Let's get the plans out of the group chat...

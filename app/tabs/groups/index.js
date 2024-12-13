@@ -72,8 +72,8 @@ export default function Groups() {
       >
         <MaterialCommunityIcons
           name="plus"
-          size={30}
-          color={Theme.colors.textPrimary}
+          size={35}
+          color="white"
         />
       </TouchableOpacity>
     </SafeAreaView>
@@ -105,8 +105,8 @@ const styles = StyleSheet.create({
     bottom: 20,
     width: 60,
     height: 60,
-    borderRadius: 30,
-    backgroundColor: Theme.colors.backgroundHighlighted,
+    borderRadius: 35,
+    backgroundColor: '#64B5F6',
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,

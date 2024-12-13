@@ -1,39 +1,40 @@
 import { StyleSheet, View, Text } from "react-native";
 import { Stack } from "expo-router";
 import Theme from "@/assets/theme";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+
+const SCREEN_OPTIONS = {
+  headerStyle: { 
+    backgroundColor: Theme.colors.lightBlueHeader 
+  }
+};
+
+const HEADER_COMPONENT = (title) => (
+  <View style={styles.headerContainer}>
+    <Text style={styles.headerText}>{title}</Text>
+  </View>
+);
 
 export default function GroupsStackLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: Theme.colors.lightBlueHeader },
-      }}
-    >
+    <Stack screenOptions={SCREEN_OPTIONS}>
       <Stack.Screen
         name="index"
         options={{
-          headerTitle: () => (
-            <View style={styles.headerContainer}>
-              <Text style={styles.headerText}>Groups</Text>
-            </View>
-          ),
+          headerTitle: () => HEADER_COMPONENT("Groups"),
           headerTitleAlign: "center",
         }}
       />
+      
       <Stack.Screen
         name="creategroup"
         options={{
-          headerTitle: () => (
-            <View style={styles.headerContainer}>
-              <Text style={styles.headerText}>Create New Group</Text>
-            </View>
-          ),
+          headerTitle: () => HEADER_COMPONENT("Create New Group"),
           headerTitleAlign: "center",
           presentation: "modal",
           headerBackVisible: true,
         }}
       />
+      
       <Stack.Screen
         name="create-group-transition"
         options={{ 
@@ -41,10 +42,13 @@ export default function GroupsStackLayout() {
           presentation: "modal"
         }}
       />
+      
       <Stack.Screen
         name="groupsummary"
         options={{
-          headerShown: false,
+          headerBackVisible: true,
+          headerTitle: "",
+          headerBackTitleVisible: false,
         }}
       />
     </Stack>
@@ -58,7 +62,7 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.backgroundPrimary,
   },
   headerText: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: "bold",
     color: Theme.colors.white,
     fontFamily: "Avenir",
