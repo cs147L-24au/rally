@@ -29,11 +29,11 @@ export default function AddToGroupButton({ item }) {
 
   return (
     <TouchableOpacity
-      style={[styles.addToGroupButton, isAdded && styles.addedToGroupButton]}
+      style={[styles.button, isAdded && styles.addedButton]}
       onPress={handleAddToGroup}
       disabled={isAdded}
     >
-      <Text style={[styles.addToGroupText, isAdded && styles.addedToGroupText]}>
+      <Text style={[styles.buttonText, isAdded && styles.addedButtonText]}>
         {isAdded ? "Added to Group" : "Add to Group"}
       </Text>
     </TouchableOpacity>
@@ -41,35 +41,35 @@ export default function AddToGroupButton({ item }) {
 }
 
 const styles = StyleSheet.create({
-  addToGroupButton: {
-    backgroundColor: Theme.colors.white,
-    padding: Theme.sizes.spacingMedium,
-    borderRadius: Theme.sizes.spacingLarge,
-    alignItems: "center",
-    justifyContent: "center",
-    height: 56,
-    borderWidth: 2,
-    borderColor: Theme.colors.blue,
-    shadowColor: Theme.colors.black,
+  button: {
+    backgroundColor: Theme.colors.white, // Default white background
+    paddingVertical: Theme.sizes.spacingSmall, // Padding for vertical spacing
+    paddingHorizontal: Theme.sizes.spacingSmall, // Padding for horizontal spacing
+    borderRadius: 10, // Rounded corners
+    alignItems: "center", // Center text horizontally
+    justifyContent: "center", // Center text vertically
+    borderWidth: 2, // Border width
+    borderColor: Theme.colors.blue, // Blue border for default state
+    shadowColor: Theme.colors.black, // Shadow color
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.1,
     shadowRadius: 3,
-    elevation: 3,
+    elevation: 3, // Shadow for Android
+    width: 200, // Set a fixed width for the button
   },
-  addedToGroupButton: {
-    backgroundColor: Theme.colors.blue,
-    borderColor: Theme.colors.blue,
+  addedButton: {
+    backgroundColor: Theme.colors.blue, // Filled blue background when added
+    borderColor: Theme.colors.blue, // Border matches background
   },
-  addToGroupText: {
-    color: Theme.colors.blue,
-    fontSize: Theme.sizes.textLarge,
-    fontWeight: "600",
-    letterSpacing: 0.5,
+  buttonText: {
+    color: Theme.colors.blue, // Blue text for default state
+    fontSize: Theme.sizes.textMedium, // Font size matches the rest of the app
+    fontWeight: "600", // Semi-bold text
   },
-  addedToGroupText: {
-    color: Theme.colors.white,
+  addedButtonText: {
+    color: Theme.colors.white, // White text for added state
   },
 });
