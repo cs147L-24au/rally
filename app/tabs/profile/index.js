@@ -5,14 +5,12 @@ import {
   View,
   TouchableOpacity,
   Alert,
-  Image
+  Image,
+  ScrollView,
 } from "react-native";
-
 import { useRouter } from "expo-router";
-
 import Theme from "@/assets/theme";
 import Loading from "@/components/Loading";
-
 import db from "@/database/db";
 import useSession from "@/utils/useSession";
 
@@ -40,19 +38,34 @@ export default function Profile() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Profile Header */}
-      <View style={styles.profileHeader}>
-        <Image
-          source={require("@/assets/penguin.png")}
-          style={styles.avatar}
-        />
-        <Text style={styles.greeting}>Hi, Kevina!</Text>
-      </View>
-      {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
-        <Text style={styles.logoutButtonText}>Log Out</Text>
-      </TouchableOpacity>
-      
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Profile Header */}
+        <View style={styles.profileHeader}>
+          <Image
+            source={require("@/assets/penguin.png")}
+            style={styles.avatar}
+          />
+          <Text style={styles.greeting}>Hi, Kevina!</Text>
+        </View>
+
+        {/* Travel Assistant Card */}
+        <TouchableOpacity
+          style={styles.assistantCard}
+          onPress={() => router.push("/tabs/profile/chatbot")}
+        >
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>Travel Assistant</Text>
+            <Text style={styles.cardDescription}>
+              Get personalized travel recommendations and advice
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* Logout Button */}
+        <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
+          <Text style={styles.logoutButtonText}>Log Out</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -60,40 +73,69 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Theme.colors.background,
-    justifyContent: "space-between", 
+    backgroundColor: Theme.colors.backgroundPrimary,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    padding: 16,
   },
   profileHeader: {
-    flexDirection: "row", 
-    alignItems: "center", 
-    marginTop: 20, 
-    marginLeft: 16, 
+    alignItems: "center",
+    marginBottom: 24,
   },
   avatar: {
-    width: 60, 
-    height: 60,
-    borderRadius: 35,
-    marginRight: 12, 
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 12,
   },
   greeting: {
-    fontSize: 28, 
+    fontSize: 24,
     fontWeight: "bold",
-    color: Theme.colors.blue, 
+    color: Theme.colors.textPrimary,
+    fontFamily: "Avenir",
+  },
+  assistantCard: {
+    backgroundColor: Theme.colors.white,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardContent: {
+    alignItems: "center",
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: Theme.colors.textPrimary,
+    marginBottom: 8,
+    fontFamily: "Avenir",
+  },
+  cardDescription: {
+    fontSize: 16,
+    color: Theme.colors.textSecondary,
+    textAlign: "center",
     fontFamily: "Avenir",
   },
   logoutButton: {
     backgroundColor: Theme.colors.blue,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 10, 
-    alignSelf: "flex-end", 
-    marginRight: 16, 
-    marginBottom: 16, 
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: "auto",
   },
   logoutButtonText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
-    textAlign: "center",
+    color: Theme.colors.white,
+    fontSize: 18,
+    fontWeight: "600",
+    fontFamily: "Avenir",
   },
 });
