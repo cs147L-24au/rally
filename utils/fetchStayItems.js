@@ -1,32 +1,51 @@
 import { API_CONFIG, DEFAULT_IMAGES } from "./apiConfig";
-import { fetchWithAuth, logError } from "./apiUtils";
+import { fetchWithAuth, logError, sleep } from "./apiUtils";
 
-const searchLocation = async (query) => {
-  if (!query) return null;
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
 
+const retryOperation = async (operation, errorMessage, attempt = 1) => {
   try {
-    const url = API_CONFIG.stays.endpoint.locationSearch(query);
-    const data = await fetchWithAuth(url, API_CONFIG.stays.host);
-    const location = data.data?.find(
-      (item) => item.entityType === "city" || item.entityType === "hotel"
-    );
-
-    return location ? { entityId: location.entityId } : null;
+    const result = await operation();
+    if (!result && attempt < MAX_RETRIES) {
+      await sleep(RETRY_DELAY);
+      return retryOperation(operation, errorMessage, attempt + 1);
+    }
+    return result;
   } catch (error) {
-    logError("Location search", error);
+    if (attempt < MAX_RETRIES) {
+      await sleep(RETRY_DELAY);
+      return retryOperation(operation, errorMessage, attempt + 1);
+    }
+    logError(errorMessage, error);
     return null;
   }
 };
 
-const calculateTotalNights = (fromDate, toDate) =>
-  Math.ceil((new Date(toDate) - new Date(fromDate)) / (1000 * 60 * 60 * 24));
+const searchLocation = async (query) => {
+  if (!query) return null;
+
+  const operation = async () => {
+    const data = await fetchWithAuth(
+      API_CONFIG.stays.endpoint.locationSearch(query),
+      API_CONFIG.stays.host
+    );
+
+    const location = data?.data?.find(
+      (item) => item.entityType === "city" || item.entityType === "hotel"
+    );
+    return location ? { entityId: location.entityId } : null;
+  };
+
+  return retryOperation(operation, "Location search");
+};
 
 const transformHotelData = (data, searchParams) => {
   if (!data?.data?.results?.hotelCards) return [];
 
-  const totalNights = calculateTotalNights(
-    searchParams.fromDate,
-    searchParams.toDate
+  const totalNights = Math.ceil(
+    (new Date(searchParams.toDate) - new Date(searchParams.fromDate)) /
+      (1000 * 60 * 60 * 24)
   );
 
   return data.data.results.hotelCards.map((hotel) => ({
@@ -62,19 +81,21 @@ const transformHotelData = (data, searchParams) => {
 };
 
 export const fetchStayItems = async (searchParams) => {
-  try {
+  const operation = async () => {
     const location = await searchLocation(searchParams.destination);
-    if (!location) return [];
+    if (!location) return null;
 
-    const url = API_CONFIG.stays.endpoint.search({
-      ...searchParams,
-      entityId: location.entityId,
-    });
+    const data = await fetchWithAuth(
+      API_CONFIG.stays.endpoint.search({
+        ...searchParams,
+        entityId: location.entityId,
+      }),
+      API_CONFIG.stays.host
+    );
 
-    const data = await fetchWithAuth(url, API_CONFIG.stays.host);
-    return transformHotelData(data, searchParams);
-  } catch (error) {
-    logError("Hotel search", error);
-    return [];
-  }
+    const transformedData = transformHotelData(data, searchParams);
+    return transformedData.length > 0 ? transformedData : null;
+  };
+
+  return (await retryOperation(operation, "Hotel search")) || [];
 };
