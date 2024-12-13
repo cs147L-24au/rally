@@ -110,21 +110,7 @@ export default function ExploreSearch({ onSearch }) {
     <View style={styles.card}>
       <View style={styles.tripInfo}>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Group (Optional):</Text>
-          <TouchableOpacity
-            style={styles.input}
-            onPress={() => setShowModal(true)}
-          >
-            <Text
-              style={[styles.inputText, !selectedGroup && styles.placeholder]}
-            >
-              {selectedGroup || "Select a group"}
-            </Text>
-          </TouchableOpacity>
         </View>
-
-        {renderGroupPicker()}
-
         <View style={styles.infoRow}>
           <Text style={styles.label}>Dates</Text>
           <View style={styles.dateContainer}>
@@ -200,6 +186,9 @@ const styles = StyleSheet.create({
     padding: Theme.sizes.spacingSmall,
     borderWidth: 1,
     borderColor: Theme.colors.borderGray,
+    width: '90%',
+    alignSelf: "center", // Center the card horizontally
+    marginTop: 12, // Add more space below the header
   },
   tripInfo: {
     gap: Theme.sizes.spacingSmall,
@@ -208,8 +197,11 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   label: {
-    fontSize: Theme.sizes.textSmall,
+    fontSize: Theme.sizes.textMedium,
     color: Theme.colors.gray,
+    fontFamily: "Avenir",
+    fontWeight: "bold",
+    
   },
   input: {
     fontSize: Theme.sizes.textSmall,
@@ -221,6 +213,7 @@ const styles = StyleSheet.create({
     borderColor: Theme.colors.borderGray,
     height: 36,
     justifyContent: "center",
+    fontFamily: "Avenir",
   },
   inputText: {
     fontSize: Theme.sizes.textSmall,
@@ -258,11 +251,13 @@ const styles = StyleSheet.create({
     padding: Theme.sizes.spacingMedium,
     borderBottomWidth: 1,
     borderBottomColor: Theme.colors.borderGray,
+   
   },
   modalTitle: {
     fontSize: Theme.sizes.textLarge,
     fontWeight: "600",
     color: Theme.colors.black,
+  
   },
   doneButton: {
     padding: Theme.sizes.spacingSmall,
@@ -271,12 +266,13 @@ const styles = StyleSheet.create({
     color: Theme.colors.blue,
     fontSize: Theme.sizes.textMedium,
     fontWeight: "600",
+    fontFamily: "Avenir",
   },
   searchButton: {
     backgroundColor: Theme.colors.blue,
     paddingVertical: Theme.sizes.spacingSmall,
     paddingHorizontal: Theme.sizes.spacingMedium,
-    borderRadius: 20, // Smaller border radius
+    borderRadius: 10, // Smaller border radius
     marginTop: Theme.sizes.spacingMedium,
     alignSelf: "center", // Center the button
     minWidth: 100, // Set minimum width
@@ -286,5 +282,6 @@ const styles = StyleSheet.create({
     fontSize: Theme.sizes.textSmall, // Smaller font size
     fontWeight: "600",
     textAlign: "center",
+    fontFamily: "Avenir",
   },
 });

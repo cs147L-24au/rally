@@ -7,7 +7,7 @@ export default function ExploreStackLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: Theme.colors.backgroundPrimary },
+        headerStyle: { backgroundColor: Theme.colors.lightBlueHeader },
       }}
     >
       <Stack.Screen
@@ -56,8 +56,9 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.backgroundPrimary,
   },
   headerText: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: "bold",
-    color: Theme.colors.textPrimary,
+    color: Theme.colors.white,
+    fontFamily: "Avenir",
   },
 });

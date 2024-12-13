@@ -49,9 +49,9 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.backgroundPrimary,
   },
   headerText: {
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: Theme.colors.white,
     fontFamily: "Avenir",
   },
 });

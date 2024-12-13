@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
   summaryText: {
     fontSize: 16,
     fontFamily: "Avenir",
-    color: "Theme.colors.blue",
+    color: Theme.colors.blue,
     marginBottom: 12,
     textAlign: "center",
     fontStyle: "italic"
