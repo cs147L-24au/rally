@@ -34,74 +34,60 @@ const searchLocation = async (query) => {
   }
 };
 
-const transformHotelData = (data, searchParams) => {
+const transformHotelData = (data) => {
   if (!data?.data?.results?.hotelCards) return [];
-  if (!searchParams?.fromDate || !searchParams?.toDate) {
-    console.warn("Missing date parameters in hotel search");
-    return [];
-  }
-
-  const checkInDate = new Date(searchParams.fromDate);
-  const checkOutDate = new Date(searchParams.toDate);
-  const totalNights = Math.ceil(
-    (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
 
   return data.data.results.hotelCards.map((hotel) => {
     const lowestPrice = hotel.lowestPrice;
     const review = hotel.reviewsSummary;
 
-    // Transform other providers data
-    const otherProviders =
-      hotel.otherPrices?.map((provider) => ({
-        name: provider.name,
-        price: provider.price,
-        logo: provider.logo,
-        url: provider.url,
-        isOfficial: provider.isOfficial,
-        features: provider.rateFeatures || [],
-        partnerType: provider.partnerType,
-      })) || [];
-
     return {
       id: hotel.hotelId,
       title: hotel.name,
       image: hotel.images?.[0] || DEFAULT_IMAGES.HOTEL,
-      additionalImages: hotel.images?.slice(1) || [],
       source: lowestPrice?.partnerName || "Multiple providers",
       cost: lowestPrice?.price || "Price unavailable",
       details: {
         // Basic Info
         stars: Number(hotel.stars) || 0,
+        distance: hotel.distance,
+        landmark: hotel.relevantPoiDistance,
+
+        // Location
+        coordinates: hotel.coordinates,
+
+        // Reviews
         rating: review?.score || 0,
         reviews: review?.total || 0,
         reviewText: review?.scoreDesc || "No reviews",
-
-        // Dates and Duration
-        checkIn: checkInDate.toLocaleDateString("en-US", dateOptions),
-        checkOut: checkOutDate.toLocaleDateString("en-US", dateOptions),
-        totalNights: totalNights,
-
-        // Location
-        distance: hotel.distance,
-        landmark: hotel.relevantPoiDistance,
-        coordinates: hotel.coordinates,
+        reviewImage: review?.imageUrl,
 
         // Pricing
-        pricePerNight: Math.round((lowestPrice?.rawPrice || 0) / totalNights),
-        basePrice: Math.round((lowestPrice?.rawBasePrice || 0) / totalNights),
-        taxAndFees: Math.round((lowestPrice?.rawTaxAndFees || 0) / totalNights),
+        rawPrice: lowestPrice?.rawPrice,
+        basePrice: lowestPrice?.rawBasePrice,
+        taxAndFees: lowestPrice?.rawTaxAndFees,
+
+        // Additional Providers
+        otherProviders:
+          hotel.otherPrices?.map((provider) => ({
+            name: provider.name,
+            price: provider.price,
+            rawPrice: provider.rawPrice,
+            logo: provider.logo,
+            url: provider.url,
+          })) || [],
+
+        // Property Features
+        highlights:
+          hotel.confidentMessages?.map((msg) => ({
+            type: msg.type,
+            score: msg.score,
+            icon: msg.icon,
+            message: msg.message,
+          })) || [],
 
         // Booking
         bookingUrl: lowestPrice?.url || null,
-        otherProviders: otherProviders,
-
-        // Additional Info
-        highlights: hotel.confidentMessages || [],
-        amenities: lowestPrice?.rateFeatures || [],
-        isCheapest: lowestPrice?.isPriceCheapest || false,
-        partnerType: lowestPrice?.partnerType || null,
-        partnerLogo: lowestPrice?.partnerLogo || null,
       },
     };
   });
@@ -152,7 +138,13 @@ export const fetchStayItems = async (searchParams) => {
       throw new Error("Search timed out without complete results");
     }
 
-    const transformedData = transformHotelData(finalData, searchParams);
+    const transformedData = transformHotelData(finalData);
+
+    // // Log transformed data
+    // console.log("Transformed Stay Data:", {
+    //   count: transformedData.length,
+    //   data: JSON.stringify(transformedData, null, 2),
+    // });
 
     return transformedData;
   } catch (error) {
