@@ -20,7 +20,7 @@ export default function GroupsStackLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerTitle: () => HEADER_COMPONENT("Groups"),
+          headerTitle: () => HEADER_COMPONENT("My Groups"),
           headerTitleAlign: "center",
         }}
       />
