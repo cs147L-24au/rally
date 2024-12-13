@@ -29,6 +29,22 @@ export default function ExploreStackLayout() {
           presentation: "card",
         }}
       />
+      <Stack.Screen
+        name="stayDetails"
+        options={{
+          headerTitle: "Stay Details",
+          headerTitleAlign: "center",
+          presentation: "card",
+        }}
+      />
+      <Stack.Screen
+        name="activityDetails"
+        options={{
+          headerTitle: "Activity Details",
+          headerTitleAlign: "center",
+          presentation: "card",
+        }}
+      />
     </Stack>
   );
 }

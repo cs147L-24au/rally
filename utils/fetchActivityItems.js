@@ -31,32 +31,41 @@ const searchLocation = async (query) => {
 };
 
 const transformActivityData = (data) => {
+  // The attractions are in data.data.attractions
   const attractions = data.data?.attractions || [];
 
   return attractions.map((activity) => ({
+    type: "activity",
     id: activity.cardLink?.route?.typedParams?.contentId || "",
     title: activity.cardTitle?.string || "",
     image: activity.cardPhoto?.sizes?.urlTemplate
       ? activity.cardPhoto.sizes.urlTemplate
-          .replace("{width}", "500")
-          .replace("{height}", "300")
+          .replace(/{width}/, "800")
+          .replace(/{height}/, "600")
       : DEFAULT_IMAGES.ACTIVITY,
-    source: "TripAdvisor",
     cost: activity.merchandisingText?.htmlString || "Free",
+    source: "TripAdvisor",
     details: {
-      rating: activity.bubbleRating?.rating || "N/A",
-      reviews: activity.bubbleRating?.numberReviews?.string
-        ? parseInt(activity.bubbleRating.numberReviews.string)
-        : 0,
-      description: activity.descriptiveText?.string || "",
-      category: activity.primaryInfo?.text || "Activity",
-      address: activity.secondaryInfo?.text || "",
+      category: activity.primaryInfo?.text || "",
+      location: activity.secondaryInfo?.text || "",
+      rating: activity.bubbleRating?.rating || 0,
+      reviews: activity.bubbleRating?.numberReviews?.string || "0",
+      openStatus: activity.secondaryInfo?.text?.includes("Open now")
+        ? "Open"
+        : null,
+      pricing: {
+        isFree: !activity.merchandisingText?.htmlString,
+        fromPrice: activity.merchandisingText?.htmlString || null,
+      },
+      source: "TripAdvisor",
     },
   }));
 };
 
 export const fetchActivityItems = async (searchParams) => {
   try {
+    console.log("Activity Search Params:", searchParams);
+
     const location = await searchLocation(searchParams.destination);
     if (!location) {
       throw new Error("Could not find location");
@@ -68,12 +77,14 @@ export const fetchActivityItems = async (searchParams) => {
     });
 
     const data = await fetchWithAuth(url, API_CONFIG.activities.host);
+    console.log("Activity Search Response:", {
+      url,
+      params: searchParams,
+      response: JSON.stringify(data, null, 2),
+    });
 
-    if (!data.status) {
-      throw new Error(data.message || "Failed to fetch activities data");
-    }
-
-    return transformActivityData(data);
+    const transformedData = transformActivityData(data);
+    return transformedData;
   } catch (error) {
     logError("Activities search", error);
   }
