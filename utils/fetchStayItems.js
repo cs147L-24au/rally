@@ -34,30 +34,64 @@ const searchLocation = async (query) => {
   }
 };
 
-const transformHotelData = (data) => {
-  const hotels = data.data.results.hotelCards;
+const transformHotelData = (data, searchParams) => {
+  if (!data?.data?.results?.hotelCards) return [];
 
-  return hotels.map((hotel) => ({
-    id: hotel.hotelId,
-    title: hotel.name,
-    source: "Skyscanner",
-    cost: hotel.cheapestPrice || "Price unavailable",
-    image: hotel.images?.[0] || DEFAULT_IMAGES.STAY,
-    details: {
-      address: hotel.distance || "",
-      amenities: hotel.lowestPrice?.amenities || [],
-      coordinates: {
-        latitude: hotel.coordinates?.latitude,
-        longitude: hotel.coordinates?.longitude,
+  // Calculate total nights - using the exact dates from searchParams
+  const fromDate = searchParams.fromDate;
+  const toDate = searchParams.toDate;
+  const totalNights = Math.ceil(
+    (new Date(toDate) - new Date(fromDate)) / (1000 * 60 * 60 * 24)
+  );
+
+  return data.data.results.hotelCards.map((hotel) => {
+    const lowestPrice = hotel.lowestPrice;
+    const review = hotel.reviewsSummary;
+
+    return {
+      type: "stay",
+      id: hotel.hotelId,
+      title: hotel.name,
+      image: hotel.images?.[0] || DEFAULT_IMAGES.HOTEL,
+      source: lowestPrice?.partnerName || "Multiple providers",
+      cost: lowestPrice?.price || "Price unavailable",
+      details: {
+        // Basic Info
+        stars: Number(hotel.stars) || 0,
+        distance: hotel.distance,
+        landmark: hotel.relevantPoiDistance,
+
+        // Dates and Duration - using the exact dates from searchParams
+        checkIn: fromDate,
+        checkOut: toDate,
+        totalNights: totalNights,
+
+        // Location
+        coordinates: hotel.coordinates,
+
+        // Reviews
+        rating: review?.score || 0,
+        reviews: review?.total || 0,
+        reviewText: review?.scoreDesc || "No reviews",
+        reviewImage: review?.imageUrl,
+
+        // Pricing
+        pricePerNight: Math.round(lowestPrice?.rawPrice || 0),
+        basePrice: Math.round((lowestPrice?.rawBasePrice || 0) / totalNights),
+        taxAndFees: Math.round((lowestPrice?.rawTaxAndFees || 0) / totalNights),
+
+        // Additional Info
+        highlights: hotel.confidentMessages || [],
+        bookingUrl: lowestPrice?.url || null,
       },
-      rating: hotel.reviewsSummary?.score?.toString() || "N/A",
-      reviews: hotel.reviewsSummary?.total || 0,
-    },
-  }));
+    };
+  });
 };
 
 export const fetchStayItems = async (searchParams) => {
   try {
+    console.log("Stay Search Params:", searchParams);
+
     const location = await searchLocation(searchParams.destination);
     if (!location) {
       throw new Error("Could not find location");
@@ -74,6 +108,13 @@ export const fetchStayItems = async (searchParams) => {
     while (attempts < MAX_POLLING_ATTEMPTS) {
       attempts++;
       const data = await fetchWithAuth(url, API_CONFIG.stays.host);
+
+      // Log each polling attempt
+      console.log(`Stay Search Polling Attempt ${attempts}:`, {
+        url,
+        status: data?.data?.status,
+        response: JSON.stringify(data, null, 2),
+      });
 
       const status = data?.data?.status;
       if (
@@ -92,7 +133,15 @@ export const fetchStayItems = async (searchParams) => {
       throw new Error("Search timed out without complete results");
     }
 
-    return transformHotelData(finalData);
+    const transformedData = transformHotelData(finalData, searchParams);
+
+    // // Log transformed data
+    // console.log("Transformed Stay Data:", {
+    //   count: transformedData.length,
+    //   data: JSON.stringify(transformedData, null, 2),
+    // });
+
+    return transformedData;
   } catch (error) {
     logError("Hotel search", error);
   }
