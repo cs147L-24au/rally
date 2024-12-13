@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text } from "react-native";
-import { Stack } from "expo-router";
+import { Stack  } from "expo-router";
 import Theme from "@/assets/theme";
 
 export default function ProfileStackLayout() {
@@ -7,6 +7,13 @@ export default function ProfileStackLayout() {
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: Theme.colors.lightBlueHeader },
+        headerTintColor: Theme.colors.white, 
+        headerBackTitleVisible: false, 
+        headerBackImage: () => (
+          <View style={styles.backButtonContainer}>
+            <Text style={styles.backArrow}>←</Text>
+          </View>
+        ),
       }}
     >
       <Stack.Screen
@@ -23,9 +30,12 @@ export default function ProfileStackLayout() {
       <Stack.Screen
         name="chatbot"
         options={{
-          headerTitle: "Evelyn",
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>Evelyn</Text>
+            </View>
+          ),
           headerTitleAlign: "center",
-          presentation: "card",
         }}
       />
     </Stack>
@@ -36,11 +46,20 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: Theme.colors.backgroundPrimary,
   },
   headerText: {
     fontSize: 28,
     fontWeight: "bold",
     color: Theme.colors.white,
     fontFamily: "Avenir",
+  },
+  backButtonContainer: {
+    paddingLeft: 30,
+  },
+  backArrow: {
+    fontSize: 24,
+    color: Theme.colors.white, 
+    fontWeight: "bold",
   },
 });
