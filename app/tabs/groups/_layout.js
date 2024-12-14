@@ -129,6 +129,48 @@ export default function GroupsStackLayout() {
           ...GRADIENT_OPTIONS,
         }}
       />
+      <Stack.Screen
+        name="flightDetails"
+        options={{
+          headerBackVisible: true,
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>Flight Details</Text>
+            </View>
+          ),
+          headerBackTitleVisible: false,
+          headerTintColor: Theme.colors.white,
+          ...GRADIENT_OPTIONS,
+        }}
+      />
+      <Stack.Screen
+        name="stayDetails"
+        options={{
+          headerBackVisible: true,
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>Stay Details</Text>
+            </View>
+          ),
+          headerBackTitleVisible: false,
+          headerTintColor: Theme.colors.white,
+          ...GRADIENT_OPTIONS,
+        }}
+      />
+      <Stack.Screen
+        name="activityDetails"
+        options={{
+          headerBackVisible: true,
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>Activity Details</Text>
+            </View>
+          ),
+          headerBackTitleVisible: false,
+          headerTintColor: Theme.colors.white,
+          ...GRADIENT_OPTIONS,
+        }}
+      />
     </Stack>
   );
 }
