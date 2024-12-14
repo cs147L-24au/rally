@@ -14,42 +14,22 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Theme from "@/assets/theme";
 import { supabaseActions } from "@/utils/supabase";
 
-export default function ExploreItem({ title, image, source, cost, item }) {
+export default function ExploreItem({
+  title,
+  image,
+  source,
+  cost,
+  item,
+  isBookmarked,
+  onBookmarkChange,
+}) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [userGroups, setUserGroups] = useState([]);
-  const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
     fetchUserGroups();
-    checkIfBookmarked();
   }, []);
-
-  const checkIfBookmarked = async () => {
-    try {
-      // Get all user groups
-      const { data: groups, error } = await supabaseActions.getUserGroups();
-      if (error) throw error;
-
-      // Check each group's pinned items
-      for (const group of groups) {
-        const { data: pinnedItems } = await supabaseActions.getGroupPinnedItems(
-          group.id
-        );
-        const exists = pinnedItems.some(
-          (pinnedItem) =>
-            pinnedItem.type === item.type && pinnedItem.item_data.id === item.id
-        );
-        if (exists) {
-          setIsBookmarked(true);
-          return;
-        }
-      }
-      setIsBookmarked(false);
-    } catch (error) {
-      console.error("Error checking bookmark status:", error);
-    }
-  };
 
   const fetchUserGroups = async () => {
     try {
@@ -79,13 +59,11 @@ export default function ExploreItem({ title, image, source, cost, item }) {
 
   const handleAddToGroup = async (groupId) => {
     try {
-      // First fetch existing items for this group
       const { data: existingItems, error: fetchError } =
         await supabaseActions.getGroupPinnedItems(groupId);
 
       if (fetchError) throw fetchError;
 
-      // Check if item already exists in group
       const isDuplicate = existingItems.some(
         (existingItem) =>
           existingItem.type === item.type &&
@@ -101,7 +79,6 @@ export default function ExploreItem({ title, image, source, cost, item }) {
         return;
       }
 
-      // If not duplicate, proceed with adding
       const { error } = await supabaseActions.addPinnedItem(
         groupId,
         item.type,
@@ -110,7 +87,7 @@ export default function ExploreItem({ title, image, source, cost, item }) {
 
       if (error) throw error;
 
-      setIsBookmarked(true);
+      onBookmarkChange(true);
       setShowModal(false);
       Alert.alert("Success", "Added to group successfully!");
     } catch (error) {

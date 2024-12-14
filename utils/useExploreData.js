@@ -1,15 +1,10 @@
-import { useState } from "react";
-import { fetchFlightItems } from "./fetchFlightItems";
-import { fetchStayItems } from "./fetchStayItems";
-import { fetchActivityItems } from "./fetchActivityItems";
+import { useState, useEffect } from "react";
+import { supabaseActions } from "@/utils/supabase";
+import { fetchStayItems } from "@/utils/fetchStayItems";
+import { fetchFlightItems } from "@/utils/fetchFlightItems";
+import { fetchActivityItems } from "@/utils/fetchActivityItems";
 
-const fetchFunctions = {
-  stays: fetchStayItems,
-  flights: fetchFlightItems,
-  activities: fetchActivityItems,
-};
-
-export const useExploreData = () => {
+export default function useExploreData() {
   const [activeTab, setActiveTab] = useState("stays");
   const [tabData, setTabData] = useState({
     stays: [],
@@ -17,22 +12,56 @@ export const useExploreData = () => {
     activities: [],
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [bookmarkedItems, setBookmarkedItems] = useState(new Set());
 
-  const handleSearch = async (searchParams) => {
-    if (!searchParams?.destination) return;
-
-    setIsLoading(true);
-
+  const checkBookmarkedItems = async () => {
     try {
-      const fetchFunction = fetchFunctions[activeTab];
-      const transformedData = await fetchFunction(searchParams);
+      const { data: groups } = await supabaseActions.getUserGroups();
+      const bookmarkedSet = new Set();
 
+      for (const group of groups) {
+        const { data: pinnedItems } = await supabaseActions.getGroupPinnedItems(
+          group.id
+        );
+        pinnedItems.forEach((pinnedItem) => {
+          const itemKey = `${pinnedItem.type}-${pinnedItem.item_data.id}`;
+          bookmarkedSet.add(itemKey);
+        });
+      }
+
+      setBookmarkedItems(bookmarkedSet);
+    } catch (error) {
+      console.error("Error checking bookmarked items:", error);
+    }
+  };
+
+  useEffect(() => {
+    checkBookmarkedItems();
+  }, []);
+
+  const handleSearch = async (params) => {
+    setIsLoading(true);
+    try {
+      let results;
+      switch (activeTab) {
+        case "stays":
+          results = await fetchStayItems(params);
+          break;
+        case "flights":
+          results = await fetchFlightItems(params);
+          break;
+        case "activities":
+          results = await fetchActivityItems(params);
+          break;
+        default:
+          results = [];
+      }
       setTabData((prev) => ({
         ...prev,
-        [activeTab]: transformedData || [],
+        [activeTab]: results,
       }));
-    } catch (err) {
-      console.error(`Error fetching ${activeTab} data:`, err);
+    } catch (error) {
+      console.error("Search error:", error);
       setTabData((prev) => ({
         ...prev,
         [activeTab]: [],
@@ -45,8 +74,10 @@ export const useExploreData = () => {
   return {
     activeTab,
     setActiveTab,
-    currentData: tabData[activeTab],
+    currentData: tabData[activeTab] || [],
     isLoading,
     handleSearch,
+    bookmarkedItems,
+    setBookmarkedItems,
   };
-};
+}

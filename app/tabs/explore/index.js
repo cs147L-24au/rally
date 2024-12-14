@@ -4,18 +4,25 @@ import {
   View,
   TouchableOpacity,
   Text,
-  StyleSheet,
   FlatList,
+  StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import ExploreSearch from "@/components/ExploreSearch";
 import ExploreItem from "@/components/ExploreItem";
-import { useExploreData } from "@/utils/useExploreData";
+import ExploreSearch from "@/components/ExploreSearch";
 import Theme from "@/assets/theme";
+import useExploreData from "@/utils/useExploreData";
 
 export default function Explore() {
-  const { activeTab, setActiveTab, currentData, isLoading, handleSearch } =
-    useExploreData();
+  const {
+    activeTab,
+    setActiveTab,
+    currentData,
+    isLoading,
+    handleSearch,
+    bookmarkedItems,
+    setBookmarkedItems,
+  } = useExploreData();
 
   const handleTabChange = (newTab) => {
     setActiveTab(newTab);
@@ -47,6 +54,17 @@ export default function Explore() {
       cost={item.cost}
       details={item.details}
       item={item}
+      isBookmarked={bookmarkedItems.has(`${item.type}-${item.id}`)}
+      onBookmarkChange={(bookmarked) => {
+        const newBookmarkedItems = new Set(bookmarkedItems);
+        const itemKey = `${item.type}-${item.id}`;
+        if (bookmarked) {
+          newBookmarkedItems.add(itemKey);
+        } else {
+          newBookmarkedItems.delete(itemKey);
+        }
+        setBookmarkedItems(newBookmarkedItems);
+      }}
     />
   );
 
