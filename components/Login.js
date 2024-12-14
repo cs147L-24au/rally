@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { LinearGradient } from "expo-linear-gradient"; 
+import { LinearGradient } from "expo-linear-gradient";
 import db from "@/database/db";
 import Theme from "@/assets/theme";
 import { useRouter } from "expo-router";
@@ -43,58 +43,59 @@ export default function Login() {
 
   return (
     <LinearGradient
-    colors={[Theme.colors.blue, Theme.colors.lightestBlue]} 
-    style={styles.container}>
-    <View style={styles.container}>
-      <StatusBar style="light" />
-      {/* Header Section */}
-      <View style={styles.header}>
-        <MaterialCommunityIcons
-          size={55}
-          name="airplane"
-          color={Theme.colors.white}
-          style={styles.icon}
+      colors={[Theme.colors.blue, Theme.colors.lightestBlue]}
+      style={styles.container}
+    >
+      <View style={styles.container}>
+        <StatusBar style="light" />
+        {/* Header Section */}
+        <View style={styles.header}>
+          <MaterialCommunityIcons
+            size={55}
+            name="airplane"
+            color={Theme.colors.white}
+            style={styles.icon}
+          />
+          <Text style={styles.headerText}>RALLY</Text>
+        </View>
+        <TextInput
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+          placeholder="email@address.com"
+          placeholderTextColor={Theme.colors.textSecondary}
+          autoCapitalize={"none"}
+          style={styles.input}
         />
-        <Text style={styles.headerText}>RALLY</Text>
-      </View>
-      <TextInput
-        onChangeText={(text) => setEmail(text)}
-        value={email}
-        placeholder="email@address.com"
-        placeholderTextColor={Theme.colors.textSecondary}
-        autoCapitalize={"none"}
-        style={styles.input}
-      />
-      <TextInput
-        onChangeText={(text) => setPassword(text)}
-        value={password}
-        placeholder="Password"
-        placeholderTextColor={Theme.colors.textSecondary}
-        secureTextEntry={true}
-        autoCapitalize={"none"}
-        style={styles.input}
-      />
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          onPress={() => signInWithEmail()}
-          disabled={isSignInDisabled}
-        >
-          <Text
-            style={[
-              styles.button,
-              isSignInDisabled ? styles.buttonDisabled : undefined,
-            ]}
+        <TextInput
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+          placeholder="Password"
+          placeholderTextColor={Theme.colors.textSecondary}
+          secureTextEntry={true}
+          autoCapitalize={"none"}
+          style={styles.input}
+        />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={() => signInWithEmail()}
+            disabled={isSignInDisabled}
           >
-            Log In
+            <Text
+              style={[
+                styles.button,
+                isSignInDisabled ? styles.buttonDisabled : undefined,
+              ]}
+            >
+              Log In
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={() => router.push("/signup")}>
+          <Text style={styles.signUpText}>
+            Don't have an account? Sign up here!
           </Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => router.push("/signup")}>
-          <Text style={styles.signUpText}>
-            Don't have an account? Sign up here! 
-          </Text>
-        </TouchableOpacity>
-    </View>
     </LinearGradient>
   );
 }
@@ -128,31 +129,31 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   input: {
-    backgroundColor: Theme.colors.white, 
+    backgroundColor: Theme.colors.white,
     color: Theme.colors.textPrimary,
-    width: "90%", 
-    padding: 13, 
-    borderRadius: 8, 
-    marginBottom: 12, 
-    fontSize: 14, 
-    fontFamily: "Avenir", 
-    borderWidth: 1, 
-    borderColor: Theme.colors.borderGray, 
-    alignSelf: "center", 
+    width: "90%",
+    padding: 13,
+    borderRadius: 8,
+    marginBottom: 12,
+    fontSize: 14,
+    fontFamily: "Avenir",
+    borderWidth: 1,
+    borderColor: Theme.colors.borderGray,
+    alignSelf: "center",
   },
   button: {
     borderColor: Theme.colors.blue,
     borderWidth: 2,
     borderRadius: 10,
     paddingVertical: 12,
-    paddingHorizontal: 40, 
+    paddingHorizontal: 40,
     alignItems: "center",
     justifyContent: "center",
     fontSize: 18,
     fontFamily: "Avenir",
     color: Theme.colors.blue,
     fontWeight: "600",
-    backgroundColor: "transparent", 
+    backgroundColor: "transparent",
     backgroundColor: Theme.colors.white,
     overflow: "hidden",
   },
@@ -176,12 +177,12 @@ const styles = StyleSheet.create({
     fontFamily: "Avenir",
   },
   signUpText: {
-    marginTop: 20, 
+    marginTop: 20,
     fontSize: 16,
-    color: Theme.colors.textSecondary, 
-    fontFamily: "Avenir", 
-    textAlign: "center", 
-    textDecorationLine: "underline", 
-    fontStyle: "italic", 
+    color: Theme.colors.textSecondary,
+    fontFamily: "Avenir",
+    textAlign: "center",
+    textDecorationLine: "underline",
+    fontStyle: "italic",
   },
 });

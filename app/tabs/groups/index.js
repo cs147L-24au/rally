@@ -40,7 +40,7 @@ export default function Groups() {
   };
 
   const renderGroupItem = ({ item }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.groupItem}
       onPress={() => {
         navigateToGroupSummary(item.name);
@@ -57,23 +57,18 @@ export default function Groups() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerContainer}>
-      </View>
+      <View style={styles.headerContainer}></View>
       <FlatList
         data={groups}
         renderItem={renderGroupItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContainer}
       />
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.addButton}
         onPress={() => router.push("/tabs/groups/creategroup")}
       >
-        <MaterialCommunityIcons
-          name="plus"
-          size={35}
-          color="white"
-        />
+        <MaterialCommunityIcons name="plus" size={35} color="white" />
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -99,17 +94,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   addButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     bottom: 20,
     width: 60,
     height: 60,
     borderRadius: 35,
-    backgroundColor: '#64B5F6',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#64B5F6",
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -120,7 +115,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: Theme.sizes.textLarge,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Theme.colors.textPrimary,
   },
 });
