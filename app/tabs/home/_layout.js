@@ -1,4 +1,3 @@
-// _layout.js
 import { StyleSheet, View, Text } from "react-native";
 import { Stack } from "expo-router";
 import Theme from "@/assets/theme";
