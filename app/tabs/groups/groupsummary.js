@@ -49,15 +49,6 @@ export default function GroupCard() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        <LinearGradient
-          colors={["#00A1EC", "#C2D7F1"]}
-          style={styles.headerContainer}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <Text style={styles.groupName}>{groupName}</Text>
-        </LinearGradient>
-
         <View style={styles.infoCard}>
           {[
             { label: "Dates", value: MOCK_GROUP_DATA.dates },

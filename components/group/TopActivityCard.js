@@ -25,14 +25,11 @@ export default function TopActivitySummary({ activity, onPress }) {
             <Text style={styles.activityName}>{activity.name}</Text>
             <Text style={styles.date}>on {activity.date}</Text>
           </View>
-          <TouchableOpacity 
-            style={styles.bookButton}
-            onPress={onPress}
-          >
-            <Text style={styles.bookText}>Book here</Text>
-          </TouchableOpacity>
         </View>
       </View>
+      <TouchableOpacity onPress={onPress}>
+        <Text style={styles.seeMore}>See group suggestions →</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -50,11 +47,13 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '600',
     marginBottom: 12,
     textAlign: 'center',
     fontFamily: 'Avenir',
+    color: Theme.colors.textPrimary,
+    fontStyle: 'italic'
   },
   content: {
     backgroundColor: Theme.colors.lightestBlue,
@@ -100,5 +99,11 @@ const styles = StyleSheet.create({
     color: Theme.colors.textSecondary,
     textAlign: 'center',
     marginVertical: 12,
+  },
+  seeMore: {
+    color: Theme.colors.textPrimary,
+    fontSize: 16,
+    textAlign: 'right',
+    marginTop: 12,
   },
 });

@@ -1,11 +1,17 @@
 import { StyleSheet, View, Text } from "react-native";
 import { Stack } from "expo-router";
 import Theme from "@/assets/theme";
+import { LinearGradient } from "expo-linear-gradient";
 
 const SCREEN_OPTIONS = {
-  headerStyle: { 
-    backgroundColor: Theme.colors.lightBlueHeader 
-  }
+  headerBackground: () => (
+    <LinearGradient
+      colors={["#00A1EC", "#C2D7F1"]}
+      style={{ flex: 1 }}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    />
+  ),
 };
 
 const HEADER_COMPONENT = (title) => (
@@ -24,7 +30,7 @@ export default function GroupsStackLayout() {
           headerTitleAlign: "center",
         }}
       />
-      
+
       <Stack.Screen
         name="creategroup"
         options={{
@@ -34,22 +40,23 @@ export default function GroupsStackLayout() {
           headerBackVisible: true,
         }}
       />
-      
+
       <Stack.Screen
         name="create-group-transition"
-        options={{ 
+        options={{
           headerShown: false,
-          presentation: "modal"
+          presentation: "modal",
         }}
       />
-      
+
       <Stack.Screen
         name="groupsummary"
-        options={{
+        options={({ route }) => ({
           headerBackVisible: true,
-          headerTitle: "",
+          headerTitle: () => HEADER_COMPONENT(route.params?.groupName || ""),
           headerBackTitleVisible: false,
-        }}
+          headerTintColor: Theme.colors.white,
+        })}
       />
     </Stack>
   );

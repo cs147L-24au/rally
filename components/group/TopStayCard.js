@@ -15,10 +15,10 @@ export default function TopStaySummary({ stay, onPress }) {
           <Text style={styles.stayName}>{stay?.name}</Text>
           <Text style={styles.price}>{stay?.price}</Text>
         </View>
-        <TouchableOpacity onPress={onPress}>
-          <Text style={styles.seeMore}>See more →</Text>
-        </TouchableOpacity>
       </View>
+      <TouchableOpacity onPress={onPress}>
+        <Text style={styles.seeMore}>See more suggestions →</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -36,36 +36,44 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '600',
     marginBottom: 12,
     textAlign: 'center',
     fontFamily: 'Avenir',
+    color: Theme.colors.textPrimary,
+    fontStyle: 'italic'
   },
   contentContainer: {
+    backgroundColor: Theme.colors.lightestBlue,
+    borderRadius: 12,
+    overflow: 'hidden',
     flexDirection: 'row',
     alignItems: 'center',
   },
   image: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
+    width: 120,
+    height: 120,
   },
   details: {
     flex: 1,
-    paddingHorizontal: 12,
+    padding: 12,
   },
   stayName: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '500',
+    color: Theme.colors.textPrimary,
+    marginBottom: 4,
   },
   price: {
-    fontSize: 14,
+    fontSize: 16,
     color: Theme.colors.textSecondary,
-    marginTop: 4,
   },
   seeMore: {
-    color: Theme.colors.blue,
-    fontSize: 14,
-  },
+    color: Theme.colors.textPrimary,
+    fontSize: 16,
+    textAlign: 'right',
+    padding: 8,
+    fontStyle: 'italic'
+  }
 });
