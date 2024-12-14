@@ -14,6 +14,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Theme from "@/assets/theme";
+import { supabaseActions } from "@/utils/supabase";
 
 const formatDate = (date) => {
   return date.toLocaleDateString("en-US", {
@@ -67,11 +68,16 @@ export default function CreateGroup() {
   };
 
   const handleSubmit = async () => {
+    if (!groupName || !startDate || !endDate || !destination) {
+      Alert.alert("Error", "Please fill in all required fields");
+      return;
+    }
+
     try {
       await supabaseActions.createGroup(
         groupName,
-        startDate,
-        endDate,
+        startDate.toISOString(),
+        endDate.toISOString(),
         destination
       );
       router.push("/tabs/groups/create-group-transition");

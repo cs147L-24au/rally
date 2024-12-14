@@ -12,30 +12,38 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import Theme from "@/assets/theme";
 import Loading from "@/components/Loading";
-
-import db from "@/database/db";
 import useSession from "@/utils/useSession";
 import { useState, useEffect } from "react";
+import { Alert } from "react-native";
+import { supabaseActions } from "@/utils/supabase";
 
 export default function Groups() {
   const session = useSession();
   const router = useRouter();
   const [groups, setGroups] = useState([]);
 
+  const fetchGroups = async () => {
+    try {
+      const { data, error } = await supabaseActions.getUserGroups();
+      if (error) throw error;
+      setGroups(data || []);
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+      Alert.alert("Error", "Failed to fetch groups");
+    }
+  };
+
   useEffect(() => {
-    // TODO: Currently using mock data, replace with actual DB fetch
-    setGroups([
-      { id: 1, name: "Afleda" },
-      { id: 2, name: "Asia Fall 2024" },
-      { id: 3, name: "Weekend Getaway" },
-    ]);
-  }, []);
+    if (session) {
+      fetchGroups();
+    }
+  }, [session]);
 
   // Handle navigation to a group's summary page when clicked
-  const navigateToGroupSummary = (groupName) => {
+  const navigateToGroupSummary = (groupId) => {
     router.push({
       pathname: "/tabs/groups/groupsummary",
-      params: { groupName: groupName },
+      params: { groupId },
     });
   };
 
@@ -43,8 +51,7 @@ export default function Groups() {
     <TouchableOpacity
       style={styles.groupItem}
       onPress={() => {
-        navigateToGroupSummary(item.name);
-        console.log(`Navigating to Group Summary for: ${item.name}`);
+        navigateToGroupSummary(item.id);
       }}
     >
       <Text style={styles.groupName}>{item.name}</Text>

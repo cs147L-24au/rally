@@ -9,45 +9,60 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useState, useEffect } from "react";
 import Theme from "@/assets/theme";
 import Loading from "@/components/Loading";
 import db from "@/database/db";
 import useSession from "@/utils/useSession";
+import { supabaseActions } from "@/utils/supabase";
 
 export default function Profile() {
   const session = useSession();
   const router = useRouter();
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const profileData = await supabaseActions.getCurrentProfile();
+        setProfile(profileData);
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+
+    if (session) {
+      loadProfile();
+    }
+  }, [session]);
 
   const signOut = async () => {
     try {
-      const { error } = await db.auth.signOut();
-      if (error) {
-        Alert.alert(error.message);
-      } else {
-        router.navigate("/");
-        Alert.alert("Sign out successful.");
-      }
+      await supabaseActions.signOut();
+      router.navigate("/");
+      Alert.alert("Sign out successful.");
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      Alert.alert("Error signing out");
     }
   };
 
-  if (!session) {
+  if (!session || !profile) {
     return <Loading />;
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Profile Header */}
         <View style={styles.profileHeader}>
           <Image
             source={require("@/assets/penguin.png")}
             style={styles.avatar}
           />
-          <Text style={styles.greeting}>Hi, Kevina!</Text>
+          <Text style={styles.greeting}>
+            Hi, {profile.full_name.split(" ")[0]}!
+          </Text>
         </View>
-
         {/* Travel Assistant Card */}
         <TouchableOpacity
           style={styles.assistantCard}
