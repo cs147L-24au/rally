@@ -1,14 +1,21 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 import Theme from "@/assets/theme";
 
-export default function TopStaySummary({ stay, onPress }) {
+export default function TopStaySummary({ stay }) {
+  const router = useRouter();
+
+  const handleSeeMore = () => {
+    router.push("/tabs/groups/suggestion-feeds/TopStaysFeed");
+  };
+
   if (!stay || stay.length === 0) {
     return (
       <View style={styles.card}>
         <Text style={styles.title}>Top Stay</Text>
         <Text>No stay selected yet</Text>
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity onPress={handleSeeMore}>
           <Text style={styles.seeMore}>See more suggestions →</Text>
         </TouchableOpacity>
       </View>
@@ -27,7 +34,7 @@ export default function TopStaySummary({ stay, onPress }) {
           <Text style={styles.price}>{stayData.cost}</Text>
         </View>
       </View>
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity onPress={handleSeeMore}>
         <Text style={styles.seeMore}>See more suggestions →</Text>
       </TouchableOpacity>
     </View>

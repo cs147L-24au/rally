@@ -16,6 +16,7 @@ import TopActivityCard from "@/components/group/TopActivityCard";
 import GroupInfoCard from "@/components/group/GroupInfoCard";
 import { supabaseActions } from "@/utils/supabase";
 import Loading from "@/components/Loading";
+import { useRouter } from "expo-router";
 
 export default function GroupSummary() {
   const { groupId } = useLocalSearchParams();
@@ -27,6 +28,7 @@ export default function GroupSummary() {
     activity: [],
   });
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchGroupData = async () => {
@@ -120,14 +122,14 @@ export default function GroupSummary() {
         <TopFlightCard
           flight={getTopItem("flight")}
           onPress={() => {
-            /* Navigate to flight details */
+            router.push("/tabs/groups/suggestion-feeds/TopFlightsFeed");
           }}
         />
 
         <TopActivityCard
           activity={getTopItem("activity")}
           onPress={() => {
-            /* Navigate to activity details */
+            router.push("/tabs/groups/suggestion-feeds/TopActivitiesFeed");
           }}
         />
       </ScrollView>
