@@ -90,19 +90,43 @@ export default function GroupsStackLayout() {
       <Stack.Screen
         name="groupStays"
         options={{
-          title: "Group Stays",
+          headerBackVisible: true,
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>All Stays</Text>
+            </View>
+          ),
+          headerBackTitleVisible: false,
+          headerTintColor: Theme.colors.white,
+          ...GRADIENT_OPTIONS,
         }}
       />
       <Stack.Screen
         name="groupFlights"
         options={{
-          title: "Group Flights",
+          headerBackVisible: true,
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>All Flights</Text>
+            </View>
+          ),
+          headerBackTitleVisible: false,
+          headerTintColor: Theme.colors.white,
+          ...GRADIENT_OPTIONS,
         }}
       />
       <Stack.Screen
         name="groupActivities"
         options={{
-          title: "Group Activities",
+          headerBackVisible: true,
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>All Activities</Text>
+            </View>
+          ),
+          headerBackTitleVisible: false,
+          headerTintColor: Theme.colors.white,
+          ...GRADIENT_OPTIONS,
         }}
       />
     </Stack>

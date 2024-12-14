@@ -8,9 +8,6 @@ export default function TopStaySummary({ stay, onPress }) {
       <View style={styles.card}>
         <Text style={styles.title}>Top Stay</Text>
         <Text style={styles.noDataText}>No stay selected yet</Text>
-        <TouchableOpacity onPress={onPress}>
-          <Text style={styles.seeMore}>See more stays →</Text>
-        </TouchableOpacity>
       </View>
     );
   }
