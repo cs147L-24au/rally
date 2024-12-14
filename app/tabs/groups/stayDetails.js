@@ -105,10 +105,6 @@ export default function StayDetails() {
             ))}
           </View>
         )}
-
-        <View style={styles.actionSection}>
-          <AddToGroupButton item={parsedItem} />
-        </View>
       </View>
     </ScrollView>
   );
@@ -222,10 +218,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: Theme.colors.primary,
     fontFamily: "Avenir",
-  },
-  actionSection: {
-    alignItems: "center",
-    marginTop: Theme.sizes.spacingSmall,
   },
   separator: {
     height: 2,

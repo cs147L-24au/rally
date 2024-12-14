@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, FlatList, StyleSheet, SafeAreaView, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import ExploreItem from "@/components/ExploreItem";
+import GroupItem from "@/components/GroupItem";
 import Theme from "@/assets/theme";
 import { supabaseActions } from "@/utils/supabase";
 import Loading from "@/components/Loading";
@@ -37,13 +37,19 @@ export default function GroupStays() {
       <FlatList
         data={stays}
         renderItem={({ item }) => (
-          <ExploreItem
+          <GroupItem
             title={item.item_data.title}
             image={item.item_data.image}
             source={item.item_data.source}
             cost={item.item_data.cost}
-            item={item.item_data}
+            item={{
+              ...item.item_data,
+              type: item.type,
+              id: item.id,
+            }}
             isBookmarked={true}
+            groupId={groupId}
+            onDelete={fetchStays}
           />
         )}
         keyExtractor={(item) => item.id.toString()}

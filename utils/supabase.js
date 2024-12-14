@@ -168,4 +168,12 @@ export const supabaseActions = {
     if (error) throw error;
     return data;
   },
+
+  async deleteGroupPinnedItem(groupId, itemId) {
+    return await db
+      .from("pinned_items")
+      .delete()
+      .eq("id", itemId)
+      .eq("group_id", groupId);
+  },
 };
