@@ -42,21 +42,6 @@ export default function ExploreItem({
     }
   };
 
-  const handleCardPress = () => {
-    const route = `/tabs/explore/${item.type}Details`;
-    router.push(`${route}?item=${encodeURIComponent(JSON.stringify(item))}`);
-  };
-
-  const displayCost = () => {
-    if (!cost) return "Price not available";
-    if (cost.toLowerCase().includes("free")) return "Free";
-    return cost;
-  };
-
-  const handleBookmarkPress = () => {
-    setShowModal(true);
-  };
-
   const handleAddToGroup = async (groupId) => {
     try {
       const { data: existingItems, error: fetchError } =
@@ -84,7 +69,6 @@ export default function ExploreItem({
         item.type,
         item
       );
-
       if (error) throw error;
 
       onBookmarkChange(true);
@@ -96,8 +80,26 @@ export default function ExploreItem({
     }
   };
 
+  const renderGroupItem = ({ item: group }) => (
+    <TouchableOpacity
+      style={styles.groupItem}
+      onPress={() => handleAddToGroup(group.id)}
+    >
+      <Text style={styles.groupName}>{group.name}</Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <TouchableOpacity style={styles.card} onPress={handleCardPress}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() =>
+        router.push(
+          `/tabs/explore/${item.type}Details?item=${encodeURIComponent(
+            JSON.stringify(item)
+          )}`
+        )
+      }
+    >
       <Text style={styles.title}>{title}</Text>
       <View style={styles.imageContainer}>
         <Image
@@ -108,9 +110,18 @@ export default function ExploreItem({
       <View style={styles.infoContainer}>
         <View>
           <Text style={styles.source}>{source}</Text>
-          <Text style={styles.cost}>{displayCost()}</Text>
+          <Text style={styles.cost}>
+            {!cost
+              ? "Price not available"
+              : cost.toLowerCase().includes("free")
+              ? "Free"
+              : cost}
+          </Text>
         </View>
-        <TouchableOpacity style={styles.bookmark} onPress={handleBookmarkPress}>
+        <TouchableOpacity
+          style={styles.bookmark}
+          onPress={() => setShowModal(true)}
+        >
           <MaterialCommunityIcons
             name={isBookmarked ? "bookmark" : "bookmark-outline"}
             size={38}
@@ -121,7 +132,7 @@ export default function ExploreItem({
 
       <Modal
         visible={showModal}
-        transparent={true}
+        transparent
         animationType="slide"
         onRequestClose={() => setShowModal(false)}
       >
@@ -139,14 +150,7 @@ export default function ExploreItem({
             <FlatList
               data={userGroups}
               keyExtractor={(item) => item.id}
-              renderItem={({ item: group }) => (
-                <TouchableOpacity
-                  style={styles.groupItem}
-                  onPress={() => handleAddToGroup(group.id)}
-                >
-                  <Text style={styles.groupName}>{group.name}</Text>
-                </TouchableOpacity>
-              )}
+              renderItem={renderGroupItem}
               contentContainerStyle={styles.groupList}
             />
           </View>

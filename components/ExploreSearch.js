@@ -12,7 +12,6 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Theme from "@/assets/theme";
 
-// Add this helper function at the top of your component
 const formatDate = (date) => {
   return date.toLocaleDateString("en-US", {
     month: "short",
@@ -30,35 +29,23 @@ export default function ExploreSearch({ onSearch, activeTab }) {
   const [showToPicker, setShowToPicker] = useState(false);
 
   const validateInputs = () => {
-    // For flights, check both fromDestination and destination
     if (activeTab === "flights") {
       if (!fromDestination.trim()) {
         Alert.alert("Missing Information", "Please enter a departure city");
         return false;
       }
-      if (!destination.trim()) {
-        Alert.alert("Missing Information", "Please enter a destination city");
-        return false;
-      }
-    } else {
-      // For stays and activities, only check destination
-      if (!destination.trim()) {
-        Alert.alert("Missing Information", "Please enter a destination");
-        return false;
-      }
     }
 
-    // Validate dates
-    if (!fromDate) {
-      Alert.alert("Missing Information", "Please select a start date");
-      return false;
-    }
-    if (!toDate) {
-      Alert.alert("Missing Information", "Please select an end date");
+    if (!destination.trim()) {
+      Alert.alert("Missing Information", "Please enter a destination");
       return false;
     }
 
-    // Ensure dates are not the same day and end date is after start date
+    if (!fromDate || !toDate) {
+      Alert.alert("Missing Information", "Please select both dates");
+      return false;
+    }
+
     const startDate = new Date(fromDate);
     const endDate = new Date(toDate);
 
@@ -79,61 +66,71 @@ export default function ExploreSearch({ onSearch, activeTab }) {
   };
 
   const handleSearch = () => {
-    if (validateInputs()) {
-      const formatLocalDate = (date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
-      };
+    if (!validateInputs()) return;
 
-      const searchData = {
-        fromDestination:
-          activeTab === "flights" ? fromDestination.trim() : null,
-        destination: destination.trim(),
-        fromDate: formatLocalDate(fromDate),
-        toDate: formatLocalDate(toDate),
-      };
+    const formatLocalDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
 
-      console.log("ExploreSearch - Sending search data:", searchData);
-      onSearch(searchData);
-    }
+    const searchData = {
+      fromDestination: activeTab === "flights" ? fromDestination.trim() : null,
+      destination: destination.trim(),
+      fromDate: formatLocalDate(fromDate),
+      toDate: formatLocalDate(toDate),
+    };
+
+    onSearch(searchData);
   };
 
-  // Update the date picker handlers to enforce minimum one day difference
   const handleFromDateChange = (event, selectedDate) => {
     setShowFromPicker(false);
-    if (selectedDate) {
-      setFromDate(selectedDate);
+    if (!selectedDate) return;
 
-      // If toDate is less than or equal to the new fromDate,
-      // set toDate to the day after fromDate
-      const nextDay = new Date(selectedDate);
-      nextDay.setDate(nextDay.getDate() + 1);
+    setFromDate(selectedDate);
+    const nextDay = new Date(selectedDate);
+    nextDay.setDate(nextDay.getDate() + 1);
 
-      if (!toDate || toDate <= selectedDate) {
-        setToDate(nextDay);
-      }
+    if (!toDate || toDate <= selectedDate) {
+      setToDate(nextDay);
     }
   };
 
   const handleToDateChange = (event, selectedDate) => {
     setShowToPicker(false);
-    if (selectedDate) {
-      // Ensure selected date is after fromDate
-      if (selectedDate > fromDate) {
-        setToDate(selectedDate);
-      } else {
-        Alert.alert(
-          "Invalid Date",
-          "Check-out date must be after check-in date"
-        );
-      }
+    if (!selectedDate) return;
+
+    if (selectedDate > fromDate) {
+      setToDate(selectedDate);
+    } else {
+      Alert.alert("Invalid Date", "Check-out date must be after check-in date");
     }
   };
+
+  const renderDatePicker = (show, date, onChange) =>
+    show && (
+      <Modal transparent animationType="fade" visible={show}>
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => onChange(null, null)}
+        >
+          <View style={styles.modalContent}>
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="inline"
+              onChange={onChange}
+              minimumDate={date === fromDate ? new Date() : fromDate}
+            />
+          </View>
+        </Pressable>
+      </Modal>
+    );
+
   return (
     <View style={styles.container}>
-      {/* Only show fromDestination input when activeTab is "flights" */}
       {activeTab === "flights" && (
         <View style={styles.infoRow}>
           <Text style={styles.label}>From</Text>
@@ -161,80 +158,41 @@ export default function ExploreSearch({ onSearch, activeTab }) {
       </View>
 
       <View style={styles.dateContainer}>
-        <View style={styles.dateInput}>
-          <Text style={styles.label}>From</Text>
-          <Pressable onPress={() => setShowFromPicker(true)}>
-            <View style={styles.input}>
-              <Text style={[styles.inputText, !fromDate && styles.placeholder]}>
-                {fromDate ? formatDate(fromDate) : "Select date"}
-              </Text>
-            </View>
-          </Pressable>
-        </View>
-
-        <View style={styles.dateInput}>
-          <Text style={styles.label}>To</Text>
-          <Pressable onPress={() => setShowToPicker(true)}>
-            <View style={styles.input}>
-              <Text style={[styles.inputText, !toDate && styles.placeholder]}>
-                {toDate ? formatDate(toDate) : "Select date"}
-              </Text>
-            </View>
-          </Pressable>
-        </View>
+        {["From", "To"].map((label, index) => (
+          <View key={label} style={styles.dateInput}>
+            <Text style={styles.label}>{label}</Text>
+            <Pressable
+              onPress={() =>
+                index === 0 ? setShowFromPicker(true) : setShowToPicker(true)
+              }
+            >
+              <View style={styles.input}>
+                <Text
+                  style={[
+                    styles.inputText,
+                    !(index === 0 ? fromDate : toDate) && styles.placeholder,
+                  ]}
+                >
+                  {index === 0
+                    ? fromDate
+                      ? formatDate(fromDate)
+                      : "Select date"
+                    : toDate
+                    ? formatDate(toDate)
+                    : "Select date"}
+                </Text>
+              </View>
+            </Pressable>
+          </View>
+        ))}
       </View>
 
       <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
         <Text style={styles.searchButtonText}>Search</Text>
       </TouchableOpacity>
 
-      {showFromPicker && (
-        <Modal
-          transparent={true}
-          animationType="fade"
-          visible={showFromPicker}
-          onRequestClose={() => setShowFromPicker(false)}
-        >
-          <Pressable
-            style={styles.modalOverlay}
-            onPress={() => setShowFromPicker(false)}
-          >
-            <View style={styles.modalContent}>
-              <DateTimePicker
-                value={fromDate}
-                mode="date"
-                display="inline"
-                onChange={handleFromDateChange}
-                minimumDate={new Date()}
-              />
-            </View>
-          </Pressable>
-        </Modal>
-      )}
-
-      {showToPicker && (
-        <Modal
-          transparent={true}
-          animationType="fade"
-          visible={showToPicker}
-          onRequestClose={() => setShowToPicker(false)}
-        >
-          <Pressable
-            style={styles.modalOverlay}
-            onPress={() => setShowToPicker(false)}
-          >
-            <View style={styles.modalContent}>
-              <DateTimePicker
-                value={toDate}
-                mode="date"
-                display="inline"
-                onChange={handleToDateChange}
-                minimumDate={fromDate}
-              />
-            </View>
-          </Pressable>
-        </Modal>
-      )}
+      {renderDatePicker(showFromPicker, fromDate, handleFromDateChange)}
+      {renderDatePicker(showToPicker, toDate, handleToDateChange)}
     </View>
   );
 }
@@ -244,7 +202,7 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.white,
     padding: Theme.sizes.spacingMedium,
     gap: Theme.sizes.spacingMedium,
-    marginBottom: Theme.sizes.spacingMedium, // Add margin at bottom of search container
+    marginBottom: Theme.sizes.spacingMedium,
   },
   searchButton: {
     padding: 10,
