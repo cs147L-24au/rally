@@ -8,7 +8,6 @@ import {
   Alert,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import Theme from "@/assets/theme";
 import TopStayCard from "@/components/group/TopStayCard";
 import TopFlightCard from "@/components/group/TopFlightCard";
@@ -97,14 +96,8 @@ export default function GroupSummary() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        <LinearGradient
-          colors={[Theme.colors.lightBlueHeader, Theme.colors.white]}
-          style={styles.headerGradient}
-        >
-          <Text style={styles.groupName}>{groupData.name}</Text>
-        </LinearGradient>
-
         <GroupInfoCard
+          name={groupData.name}
           dates={formatDates()}
           destination={groupData.destination}
           joinCode={groupData.join_code}

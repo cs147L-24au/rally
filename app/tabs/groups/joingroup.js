@@ -38,7 +38,7 @@ export default function JoinGroup() {
         <View style={styles.formCard}>
           <Text style={styles.sectionTitle}>Enter Join Code</Text>
           <Text style={styles.label}>
-            Ask your friend for the 6-character join code
+            Ask your friend for the 6-character code
           </Text>
           <TextInput
             style={styles.input}

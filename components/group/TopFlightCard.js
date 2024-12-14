@@ -1,6 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Theme from "@/assets/theme";
 
 export default function TopFlightSummary({ flight, onPress }) {
@@ -19,29 +18,25 @@ export default function TopFlightSummary({ flight, onPress }) {
     <View style={styles.card}>
       <Text style={styles.title}>Top Flight</Text>
       <View style={styles.content}>
-        <View style={styles.flightInfo}>
-          <View style={styles.airlineRow}>
-            <Text style={styles.label}>Airline:</Text>
-            <Text style={styles.value}>{flightData.source}</Text>
-            <Text style={styles.price}>{flightData.cost}</Text>
-          </View>
+        {/* Airline Image Section */}
+        <Image source={{ uri: flightData.image }} style={styles.image} />
 
-          <View style={styles.routeContainer}>
-            <Text style={styles.routeText}>{flightData.title}</Text>
-            <View style={styles.routeRow}>
-              {/* You can add more specific flight details here if needed */}
-              <MaterialCommunityIcons
-                name="airplane"
-                size={20}
-                color={Theme.colors.textSecondary}
-                style={styles.icon}
-              />
+        {/* Flight Details Section */}
+        <View style={styles.detailsContainer}>
+          <View style={styles.details}>
+            <Text style={styles.airlineName}>{flightData.source}</Text>
+
+            {/* Route Information */}
+            <View style={styles.routeContainer}>
+              <Text style={styles.routeText}>{flightData.title}</Text>
             </View>
+
+            <Text style={styles.price}>{flightData.cost}</Text>
           </View>
         </View>
       </View>
       <TouchableOpacity onPress={onPress}>
-        <Text style={styles.seeMore}>See group suggestions →</Text>
+        <Text style={styles.seeMore}>See more flights →</Text>
       </TouchableOpacity>
     </View>
   );
@@ -61,7 +56,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "600",
+    fontWeight: "bold",
     marginBottom: 12,
     textAlign: "center",
     fontFamily: "Avenir",
@@ -71,50 +66,64 @@ const styles = StyleSheet.create({
   content: {
     backgroundColor: Theme.colors.lightestBlue,
     borderRadius: 12,
-    padding: 16,
+    overflow: "hidden",
   },
-  airlineRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
+  image: {
+    width: "100%",
+    height: 120,
+    resizeMode: "contain",
+    marginBottom: 8,
+    backgroundColor: Theme.colors.grayLight,
   },
-  label: {
-    fontSize: 16,
-    color: Theme.colors.textSecondary,
-    fontStyle: "italic",
-    marginRight: 8,
+  detailsContainer: {
+    padding: 12,
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
   },
-  value: {
-    fontSize: 16,
+  details: {
     flex: 1,
-    color: Theme.colors.textPrimary,
   },
-  price: {
-    fontSize: 16,
-    fontWeight: "600",
+  airlineName: {
+    fontSize: 18,
+    fontWeight: "500",
     color: Theme.colors.textPrimary,
-    fontStyle: "italic",
+    marginBottom: 4,
+    fontFamily: "Avenir",
+  },
+  routeContainer: {
+    flexDirection: "row",
+    alignItems: "center"
   },
   routeText: {
     fontSize: 16,
     color: Theme.colors.textSecondary,
     fontStyle: "italic",
-    marginBottom: 4,
+    fontFamily: "Avenir",
   },
-  routeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  airport: {
+  price: {
     fontSize: 16,
-    color: Theme.colors.textPrimary,
+    color: Theme.colors.textSecondary,
+    fontWeight: "600",
+    fontFamily: "Avenir",
+    marginTop: 8,
+  },
+  noDataText: {
+    fontSize: 16,
+    color: Theme.colors.textSecondary,
+    textAlign: "center",
+    marginVertical: 12,
+    fontFamily: "Avenir",
   },
   seeMore: {
     color: Theme.colors.textPrimary,
     fontSize: 16,
     textAlign: "right",
-    marginTop: 8,
+    marginTop: 12,
     fontStyle: "italic",
+    fontFamily: "Avenir",
+  },
+  icon: {
+    marginRight: 8,
   },
 });

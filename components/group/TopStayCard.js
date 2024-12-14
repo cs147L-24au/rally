@@ -7,9 +7,9 @@ export default function TopStaySummary({ stay, onPress }) {
     return (
       <View style={styles.card}>
         <Text style={styles.title}>Top Stay</Text>
-        <Text>No stay selected yet</Text>
+        <Text style={styles.noDataText}>No stay selected yet</Text>
         <TouchableOpacity onPress={onPress}>
-          <Text style={styles.seeMore}>See more suggestions →</Text>
+          <Text style={styles.seeMore}>See more stays →</Text>
         </TouchableOpacity>
       </View>
     );
@@ -17,18 +17,23 @@ export default function TopStaySummary({ stay, onPress }) {
 
   const stayData = stay[0].item_data;
 
+  // Remove any numbering prefix from the stay title, if applicable
+  const cleanTitle = stayData.title.replace(/^\d+\.\s*/, "");
+
   return (
     <View style={styles.card}>
       <Text style={styles.title}>Top Stay</Text>
-      <View style={styles.contentContainer}>
+      <View style={styles.content}>
         <Image source={{ uri: stayData.image }} style={styles.image} />
-        <View style={styles.details}>
-          <Text style={styles.stayName}>{stayData.title}</Text>
-          <Text style={styles.price}>{stayData.cost}</Text>
+        <View style={styles.detailsContainer}>
+          <View style={styles.details}>
+            <Text style={styles.stayName}>{cleanTitle}</Text>
+            <Text style={styles.price}>{stayData.cost}</Text>
+          </View>
         </View>
       </View>
       <TouchableOpacity onPress={onPress}>
-        <Text style={styles.seeMore}>See more suggestions →</Text>
+        <Text style={styles.seeMore}>See more stays →</Text>
       </TouchableOpacity>
     </View>
   );
@@ -48,43 +53,58 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "600",
+    fontWeight: "bold",
     marginBottom: 12,
     textAlign: "center",
     fontFamily: "Avenir",
     color: Theme.colors.textPrimary,
     fontStyle: "italic",
   },
-  contentContainer: {
+  content: {
     backgroundColor: Theme.colors.lightestBlue,
     borderRadius: 12,
     overflow: "hidden",
-    flexDirection: "row",
-    alignItems: "center",
   },
   image: {
-    width: 120,
+    width: "100%",
     height: 120,
+    resizeMode: "cover",
+  },
+  detailsContainer: {
+    padding: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   details: {
     flex: 1,
-    padding: 12,
   },
   stayName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "500",
-    color: Theme.colors.textPrimary,
     marginBottom: 4,
+    fontFamily: "Avenir",
+    color: Theme.colors.textPrimary,
   },
   price: {
     fontSize: 16,
     color: Theme.colors.textSecondary,
+    fontFamily: "Avenir",
+  },
+  noDataText: {
+    fontSize: 16,
+    color: Theme.colors.textSecondary,
+    textAlign: "center",
+    marginVertical: 12,
+    fontFamily: "Avenir",
   },
   seeMore: {
     color: Theme.colors.textPrimary,
     fontSize: 16,
     textAlign: "right",
-    padding: 8,
+    marginTop: 12,
     fontStyle: "italic",
+    fontFamily: "Avenir",
   },
 });
+

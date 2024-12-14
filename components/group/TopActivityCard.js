@@ -29,7 +29,7 @@ export default function TopActivitySummary({ activity, onPress }) {
         </View>
       </View>
       <TouchableOpacity onPress={onPress}>
-        <Text style={styles.seeMore}>See group suggestions →</Text>
+        <Text style={styles.seeMore}>See more activities →</Text>
       </TouchableOpacity>
     </View>
   );
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "600",
+    fontWeight: 'bold',
     marginBottom: 12,
     textAlign: "center",
     fontFamily: "Avenir",
@@ -95,5 +95,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "right",
     marginTop: 12,
+    fontStyle: "italic",
   },
 });
