@@ -2,9 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Theme from "@/assets/theme";
 
-export default function GroupInfoCard({ dates, destination, joinCode }) {
+export default function GroupInfoCard({ name, dates, destination, joinCode }) {
   return (
     <View style={styles.card}>
+      <Text style={styles.nameText}>
+        <Text style={styles.nameLabel}>Name: </Text>
+        {name}
+      </Text>
       <Text style={styles.infoText}>
         <Text style={styles.label}>Dates: </Text>
         {dates}
@@ -34,10 +38,21 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   infoText: {
-    fontSize: 16,
+    fontSize: 18,
     marginVertical: 4,
     fontFamily: 'Avenir',
     color: Theme.colors.textPrimary,
+  },
+  nameText: {
+    fontSize: 22,
+    marginVertical: 4,
+    fontFamily: 'Avenir',
+    color: Theme.colors.textPrimary,
+    fontWeight: '700',
+  },
+  nameLabel: {
+    fontWeight: '800',
+    fontStyle: 'italic',
   },
   label: {
     fontWeight: '600',

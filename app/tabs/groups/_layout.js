@@ -76,7 +76,11 @@ export default function GroupsStackLayout() {
         name="groupsummary"
         options={({ route }) => ({
           headerBackVisible: true,
-          headerTitle: () => HEADER_COMPONENT(route.params?.groupName || ""),
+          headerTitle: () => (
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>Group Summary</Text>
+            </View>
+          ),
           headerBackTitleVisible: false,
           headerTintColor: Theme.colors.white,
           ...GRADIENT_OPTIONS,
