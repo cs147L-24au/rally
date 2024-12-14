@@ -138,50 +138,45 @@ import Loading from "@/components/Loading";
 import GroupCard from "@/components/group/GroupCard";
 import useSession from "@/utils/useSession";
 import { useState, useEffect } from "react";
+import { Alert } from "react-native";
+import { supabaseActions } from "@/utils/supabase";
 
 export default function Groups() {
   const session = useSession();
   const router = useRouter();
   const [groups, setGroups] = useState([]);
 
+  const fetchGroups = async () => {
+    try {
+      const { data, error } = await supabaseActions.getUserGroups();
+      if (error) throw error;
+      setGroups(data || []);
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+      Alert.alert("Error", "Failed to fetch groups");
+    }
+  };
+
   useEffect(() => {
-    // TODO: Currently using mock data, replace with actual DB fetch
-    setGroups([
-      { 
-        id: 1, 
-        name: "Afleda",
-        dates: "Mar 15-25, 2025",
-        destination: "Tokyo, Japan",
-        memberCount: 4
-      },
-      { 
-        id: 2, 
-        name: "Asia Fall 2024",
-        dates: "Sep 10-20, 2024",
-        destination: "Seoul, South Korea",
-        memberCount: 6
-      },
-      { 
-        id: 3, 
-        name: "Weekend Getaway",
-        memberCount: 3
-      },
-    ]);
-  }, []);
+    if (session) {
+      fetchGroups();
+    }
+  }, [session]);
 
   const navigateToGroupSummary = (groupName) => {
     router.push({
       pathname: "/tabs/groups/groupsummary",
-      params: { groupName: groupName },
+      params: { groupId },
     });
   };
 
   const renderGroupItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.groupItem}
     <GroupCard 
       group={item}
       onPress={() => {
-        navigateToGroupSummary(item.name);
-        console.log(`Navigating to Group Summary for: ${item.name}`);
+        navigateToGroupSummary(item.id);
       }}
     />
   );
@@ -192,21 +187,18 @@ export default function Groups() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.headerContainer}></View>
       <FlatList
         data={groups}
         renderItem={renderGroupItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContainer}
       />
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.addButton}
         onPress={() => router.push("/tabs/groups/creategroup")}
       >
-        <MaterialCommunityIcons
-          name="plus"
-          size={35}
-          color="white"
-        />
+        <MaterialCommunityIcons name="plus" size={35} color="white" />
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -221,7 +213,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   addButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     bottom: 20,
     width: 60,
@@ -231,9 +223,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-  }
+  },
+  headerContainer: {
+    padding: 16,
+    paddingBottom: 8,
+  },
+  headerText: {
+    fontSize: Theme.sizes.textLarge,
+    fontWeight: "bold",
+    color: Theme.colors.textPrimary,
+  },
 });

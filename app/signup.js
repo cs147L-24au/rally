@@ -1,18 +1,17 @@
 import { useState } from "react";
 import {
-  Text,
-  Alert,
   StyleSheet,
+  Text,
   View,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import db from "@/database/db";
+import { LinearGradient } from "expo-linear-gradient";
 import Theme from "@/assets/theme";
+import db from "@/database/db";
+import { supabaseActions } from "@/utils/supabase";
 
 export default function Signup() {
   const router = useRouter();
@@ -25,29 +24,29 @@ export default function Signup() {
   const signUpWithEmail = async () => {
     setLoading(true);
     try {
+      // Create auth user
       const { data, error } = await db.auth.signUp({
         email: email,
         password: password,
-        options: {
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-          },
-        },
       });
 
-      if (error) {
-        Alert.alert("Error", error.message);
-      } else {
-        Alert.alert(
-          "Success",
-          "Account created successfully!",
-          [{ text: "OK", onPress: () => router.push("/") }]
-        );
-      }
+      if (error) throw error;
+
+      // Create profile
+      const { error: profileError } = await supabaseActions.createProfile(
+        data.user.id,
+        email.split("@")[0], // Using email prefix as username
+        `${firstName} ${lastName}`
+      );
+
+      if (profileError) throw profileError;
+
+      Alert.alert("Success", "Account created successfully!", [
+        { text: "OK", onPress: () => router.push("/") },
+      ]);
     } catch (err) {
       console.error(err);
-      Alert.alert("Error", "An unexpected error occurred");
+      Alert.alert("Error", err.message || "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -65,75 +64,53 @@ export default function Signup() {
       colors={[Theme.colors.blue, Theme.colors.lightestBlue]}
       style={styles.container}
     >
-      <View style={styles.container}>
-        <StatusBar style="light" />
-        <View style={styles.header}>
-          <MaterialCommunityIcons
-            size={55}
-            name="airplane"
-            color={Theme.colors.white}
-            style={styles.icon}
-          />
-          <Text style={styles.headerText}>RALLY</Text>
-        </View>
-
+      <View style={styles.formContainer}>
+        <Text style={styles.title}>Create Account</Text>
         <TextInput
           style={styles.input}
+          placeholder="First Name"
           value={firstName}
           onChangeText={setFirstName}
-          placeholder="First Name"
-          placeholderTextColor={Theme.colors.textSecondary}
           autoCapitalize="words"
         />
-
         <TextInput
           style={styles.input}
+          placeholder="Last Name"
           value={lastName}
           onChangeText={setLastName}
-          placeholder="Last Name"
-          placeholderTextColor={Theme.colors.textSecondary}
           autoCapitalize="words"
         />
-
         <TextInput
           style={styles.input}
+          placeholder="Email"
           value={email}
           onChangeText={setEmail}
-          placeholder="email@address.com"
-          placeholderTextColor={Theme.colors.textSecondary}
           autoCapitalize="none"
           keyboardType="email-address"
         />
-
         <TextInput
           style={styles.input}
+          placeholder="Password"
           value={password}
           onChangeText={setPassword}
-          placeholder="Password"
-          placeholderTextColor={Theme.colors.textSecondary}
-          secureTextEntry={true}
-          autoCapitalize="none"
+          secureTextEntry
         />
+        <TouchableOpacity
+          style={[styles.button, isSignUpDisabled && styles.buttonDisabled]}
+          onPress={signUpWithEmail}
+          disabled={isSignUpDisabled}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? "Creating Account..." : "Sign Up"}
+          </Text>
+        </TouchableOpacity>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            onPress={signUpWithEmail}
-            disabled={isSignUpDisabled}
-          >
-            <Text
-              style={[
-                styles.button,
-                isSignUpDisabled ? styles.buttonDisabled : undefined,
-              ]}
-            >
-              Sign Up
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity onPress={() => router.push("/")}>
-          <Text style={styles.loginText}>
-            Already have an account? Log in here!
+        <TouchableOpacity
+          style={styles.linkButton}
+          onPress={() => router.push("/")}
+        >
+          <Text style={styles.linkText}>
+            Already have an account? Sign in here!
           </Text>
         </TouchableOpacity>
       </View>
@@ -143,67 +120,48 @@ export default function Signup() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 60,
-    padding: 12,
     flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
     justifyContent: "center",
-    marginBottom: 100,
   },
-  icon: {
-    marginRight: 8,
+  formContainer: {
+    padding: 20,
   },
-  headerText: {
-    fontSize: 55,
+  title: {
+    fontSize: 24,
     fontWeight: "bold",
     color: Theme.colors.white,
-    fontFamily: "Avenir",
+    marginBottom: 20,
+    textAlign: "center",
   },
   input: {
     backgroundColor: Theme.colors.white,
-    color: Theme.colors.textPrimary,
-    width: "90%",
-    padding: 13,
+    padding: 15,
     borderRadius: 8,
-    marginBottom: 12,
-    fontSize: 14,
-    fontFamily: "Avenir",
-    borderWidth: 1,
-    borderColor: Theme.colors.borderGray,
-    alignSelf: "center",
-  },
-  buttonContainer: {
-    marginTop: 12,
-    flexDirection: "row",
-    justifyContent: "space-around",
+    marginBottom: 16,
+    fontSize: 16,
   },
   button: {
-    borderColor: Theme.colors.blue,
-    borderWidth: 2,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    fontSize: 18,
-    fontFamily: "Avenir",
-    color: Theme.colors.blue,
-    fontWeight: "600",
-    backgroundColor: Theme.colors.white,
-    overflow: "hidden",
+    backgroundColor: Theme.colors.blue,
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
   },
   buttonDisabled: {
-    color: Theme.colors.textSecondary,
-    borderRadius: 10,
+    opacity: 0.7,
   },
-  loginText: {
-    marginTop: 20,
+  buttonText: {
+    color: Theme.colors.white,
     fontSize: 16,
-    color: Theme.colors.textSecondary,
-    fontFamily: "Avenir",
-    textAlign: "center",
+    fontWeight: "600",
+  },
+  linkButton: {
+    marginTop: 15,
+    alignItems: "center",
+  },
+  linkText: {
+    color: Theme.colors.white,
+    fontSize: 16,
     textDecorationLine: "underline",
-    fontStyle: "italic",
   },
 });

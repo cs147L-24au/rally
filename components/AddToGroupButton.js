@@ -1,75 +1,170 @@
-import React, { useState } from "react";
-import { TouchableOpacity, Text, StyleSheet, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Alert,
+  Modal,
+  View,
+  FlatList,
+} from "react-native";
 import { useRouter } from "expo-router";
 import Theme from "@/assets/theme";
+import { supabaseActions } from "@/utils/supabase";
 
 export default function AddToGroupButton({ item }) {
   const router = useRouter();
   const [isAdded, setIsAdded] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [groups, setGroups] = useState([]);
 
-  const handleAddToGroup = () => {
-    // TODO: Implement actual group addition logic with the item
-    console.log("Adding to group:", item);
-    setIsAdded(true);
-    Alert.alert(
-      "Added to Group",
-      "This item has been added to your group's options.",
-      [
-        {
-          text: "View Group",
-          onPress: () => router.push("/tabs/group"),
-        },
-        {
-          text: "OK",
-          style: "default",
-        },
-      ]
-    );
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const { data, error } = await supabaseActions.getUserGroups();
+        if (error) throw error;
+        setGroups(data || []);
+      } catch (error) {
+        console.error("Error fetching groups:", error);
+      }
+    };
+
+    fetchGroups();
+  }, []);
+
+  const handleAddToGroup = async (groupId) => {
+    try {
+      const type = item.type || "stay"; // Default to 'stay' if not specified
+      await supabaseActions.addPinnedItem(groupId, type, item);
+      setIsAdded(true);
+      setShowModal(false);
+      Alert.alert(
+        "Added to Group",
+        "This item has been added to your group's options.",
+        [
+          {
+            text: "View Group",
+            onPress: () =>
+              router.push({
+                pathname: "/tabs/groups/groupsummary",
+                params: { groupId: groupId },
+              }),
+          },
+          { text: "OK", style: "default" },
+        ]
+      );
+    } catch (error) {
+      console.error("Error adding item to group:", error);
+      Alert.alert("Error", "Failed to add item to group");
+    }
   };
 
-  return (
+  const renderGroupItem = ({ item: group }) => (
     <TouchableOpacity
-      style={[styles.button, isAdded && styles.addedButton]}
-      onPress={handleAddToGroup}
-      disabled={isAdded}
+      style={styles.groupItem}
+      onPress={() => handleAddToGroup(group.id)}
     >
-      <Text style={[styles.buttonText, isAdded && styles.addedButtonText]}>
-        {isAdded ? "Added to Group" : "Add to Group"}
-      </Text>
+      <Text style={styles.groupName}>{group.name}</Text>
     </TouchableOpacity>
+  );
+
+  return (
+    <>
+      <TouchableOpacity
+        style={[styles.button, isAdded && styles.addedButton]}
+        onPress={() => setShowModal(true)}
+        disabled={isAdded}
+      >
+        <Text style={[styles.buttonText, isAdded && styles.addedButtonText]}>
+          {isAdded ? "Added to Group" : "Add to Group"}
+        </Text>
+      </TouchableOpacity>
+
+      <Modal
+        visible={showModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select a Group</Text>
+            <FlatList
+              data={groups}
+              renderItem={renderGroupItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.groupList}
+            />
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowModal(false)}
+            >
+              <Text style={styles.closeButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: Theme.colors.white, // Default white background
-    paddingVertical: Theme.sizes.spacingSmall, // Padding for vertical spacing
-    paddingHorizontal: Theme.sizes.spacingSmall, // Padding for horizontal spacing
-    borderRadius: 10, // Rounded corners
-    alignItems: "center", // Center text horizontally
-    justifyContent: "center", // Center text vertically
-    borderWidth: 2, // Border width
-    borderColor: Theme.colors.blue, // Blue border for default state
-    shadowColor: Theme.colors.black, // Shadow color
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3, // Shadow for Android
-    width: 200, // Set a fixed width for the button
-  },
-  addedButton: {
-    backgroundColor: Theme.colors.blue, // Filled blue background when added
-    borderColor: Theme.colors.blue, // Border matches background
+    backgroundColor: Theme.colors.blue,
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
   },
   buttonText: {
-    color: Theme.colors.blue, // Blue text for default state
-    fontSize: Theme.sizes.textMedium, // Font size matches the rest of the app
-    fontWeight: "600", // Semi-bold text
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  addedButton: {
+    backgroundColor: Theme.colors.success,
   },
   addedButtonText: {
-    color: Theme.colors.white, // White text for added state
+    color: "white",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: Theme.colors.white,
+    borderRadius: 15,
+    padding: 20,
+    width: "80%",
+    maxHeight: "70%",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  groupList: {
+    paddingVertical: 10,
+  },
+  groupItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: Theme.colors.lightestBlue,
+  },
+  groupName: {
+    fontSize: 16,
+    color: Theme.colors.textPrimary,
+  },
+  closeButton: {
+    marginTop: 15,
+    padding: 10,
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: Theme.colors.blue,
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

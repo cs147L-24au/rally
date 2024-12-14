@@ -14,6 +14,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Theme from "@/assets/theme";
+import { supabaseActions } from "@/utils/supabase";
 
 const formatDate = (date) => {
   return date.toLocaleDateString("en-US", {
@@ -31,9 +32,7 @@ export default function CreateGroup() {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [destination, setDestination] = useState("");
-  const [people, setPeople] = useState([
-    { name: "", email: "" }
-  ]);
+  const [people, setPeople] = useState([{ name: "", email: "" }]);
 
   const handlePersonChange = (index, field, value) => {
     const newPeople = [...people];
@@ -45,12 +44,12 @@ export default function CreateGroup() {
     setShowStartPicker(false);
     if (selectedDate) {
       setStartDate(selectedDate);
-      
+
       // If endDate is less than or equal to the new startDate,
       // set endDate to the day after startDate
       const nextDay = new Date(selectedDate);
       nextDay.setDate(nextDay.getDate() + 1);
-      
+
       if (!endDate || endDate <= selectedDate) {
         setEndDate(nextDay);
       }
@@ -63,17 +62,29 @@ export default function CreateGroup() {
       if (selectedDate > startDate) {
         setEndDate(selectedDate);
       } else {
-        Alert.alert(
-          "Invalid Date",
-          "End date must be after start date"
-        );
+        Alert.alert("Invalid Date", "End date must be after start date");
       }
     }
   };
 
-  const handleSubmit = () => {
-    // TODO: Validate and save form data
-    router.push("/tabs/groups/create-group-transition");
+  const handleSubmit = async () => {
+    if (!groupName || !startDate || !endDate || !destination) {
+      Alert.alert("Error", "Please fill in all required fields");
+      return;
+    }
+
+    try {
+      await supabaseActions.createGroup(
+        groupName,
+        startDate.toISOString(),
+        endDate.toISOString(),
+        destination
+      );
+      router.push("/tabs/groups/create-group-transition");
+    } catch (error) {
+      Alert.alert("Error", "Failed to create group. Please try again.");
+      console.error(error);
+    }
   };
 
   const addPerson = () => {
@@ -102,18 +113,14 @@ export default function CreateGroup() {
           <Text style={styles.label}>Start Date</Text>
           <Pressable onPress={() => setShowStartPicker(true)}>
             <View style={styles.input}>
-              <Text style={styles.dateText}>
-                {formatDate(startDate)}
-              </Text>
+              <Text style={styles.dateText}>{formatDate(startDate)}</Text>
             </View>
           </Pressable>
 
           <Text style={styles.label}>End Date</Text>
           <Pressable onPress={() => setShowEndPicker(true)}>
             <View style={styles.input}>
-              <Text style={styles.dateText}>
-                {formatDate(endDate)}
-              </Text>
+              <Text style={styles.dateText}>{formatDate(endDate)}</Text>
             </View>
           </Pressable>
 
@@ -125,21 +132,21 @@ export default function CreateGroup() {
             placeholder="Enter destination"
           />
           <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>People</Text>
-          <View style={styles.headerButtons}>
-            {people.length > 1 && (
-              <TouchableOpacity 
-                style={styles.headerButton} 
-                onPress={() => removePerson(people.length - 1)}
-              >
-                <Text style={styles.headerButtonText}>-</Text>
+            <Text style={styles.sectionTitle}>People</Text>
+            <View style={styles.headerButtons}>
+              {people.length > 1 && (
+                <TouchableOpacity
+                  style={styles.headerButton}
+                  onPress={() => removePerson(people.length - 1)}
+                >
+                  <Text style={styles.headerButtonText}>-</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity style={styles.headerButton} onPress={addPerson}>
+                <Text style={styles.headerButtonText}>+</Text>
               </TouchableOpacity>
-            )}
-            <TouchableOpacity style={styles.headerButton} onPress={addPerson}>
-              <Text style={styles.headerButtonText}>+</Text>
-            </TouchableOpacity>
+            </View>
           </View>
-        </View>
 
           <View style={styles.peopleSection}>
             <View style={styles.peopleHeader}>
@@ -297,14 +304,14 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   sectionHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: 16,
     marginBottom: 8,
   },
   headerButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   headerButton: {
@@ -312,25 +319,25 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     backgroundColor: Theme.colors.lightestBlue,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerButtonText: {
     fontSize: 20,
     color: Theme.colors.blue,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     backgroundColor: Theme.colors.white,
     padding: 20,
     borderRadius: 10,
-    width: '80%',
+    width: "80%",
   },
   dateText: {
     fontSize: 16,

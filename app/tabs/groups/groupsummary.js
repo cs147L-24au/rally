@@ -1,81 +1,128 @@
-import React from "react";
-import { View, Text, ScrollView, StyleSheet, SafeAreaView } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  Alert,
+} from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Theme from "@/assets/theme";
 import TopStayCard from "@/components/group/TopStayCard";
 import TopFlightCard from "@/components/group/TopFlightCard";
 import TopActivityCard from "@/components/group/TopActivityCard";
+import GroupInfoCard from "@/components/group/GroupInfoCard";
+import { supabaseActions } from "@/utils/supabase";
+import Loading from "@/components/Loading";
 
-// Mock data should be moved to a separate file in a real application
-const MOCK_GROUP_DATA = {
-  dates: "3/15/25 to 3/25/25",
-  destination: "Tokyo, Japan",
-  joinCode: "463619",
-  topStay: {
-    name: "Airbnb in Shibuya",
-    price: "$144 a night",
-    image: require("@/assets/stay-shibuya.png"),
-  },
-  topFlight: {
-    airline: "Japan Airlines",
-    price: "$688 round trip",
-    toJapan: {
-      from: "SFO",
-      to: "HND",
-      time: "12:30AM to 11:15PM",
-    },
-    fromJapan: {
-      from: "HND",
-      to: "SFO",
-      time: "6:14PM to 5:19PM",
-    },
-  },
-  topActivity: {
-    name: "Attend a tea ceremony",
-    date: "3/21",
-    image: require("@/assets/activity-tea-ceremony.png"),
-  },
-};
+export default function GroupSummary() {
+  const { groupId } = useLocalSearchParams();
+  const [groupData, setGroupData] = useState(null);
+  const [pinnedItems, setPinnedItems] = useState({
+    stays: [],
+    flights: [],
+    activities: [],
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
-export default function GroupCard() {
-  const router = useRouter();
-  const { groupName } = useLocalSearchParams();
+  useEffect(() => {
+    const fetchGroupData = async () => {
+      try {
+        const { data, error } = await supabaseActions.getGroupDetails(groupId);
+        if (error) throw error;
+        setGroupData(data);
 
-  // const handleNavigation = (route) => {
-  //   router.push(`/tabs/groups/${route}`);
-  // };
+        const { data: pinnedData, error: pinnedError } =
+          await supabaseActions.getGroupPinnedItems(groupId);
+        if (pinnedError) throw pinnedError;
+
+        // Organize pinned items by type
+        const organized = pinnedData.reduce(
+          (acc, item) => {
+            acc[item.type] = [...(acc[item.type] || []), item];
+            return acc;
+          },
+          {
+            stays: [],
+            flights: [],
+            activities: [],
+          }
+        );
+
+        setPinnedItems(organized);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+        Alert.alert("Error", "Failed to load group data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGroupData();
+  }, [groupId]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (!groupData) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.errorText}>Group not found</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const formatDates = () => {
+    if (!groupData.start_date || !groupData.end_date) return "Dates not set";
+    const start = new Date(groupData.start_date).toLocaleDateString();
+    const end = new Date(groupData.end_date).toLocaleDateString();
+    return `${start} to ${end}`;
+  };
+
+  const getTopItem = (type) => {
+    if (!pinnedItems[type] || pinnedItems[type].length === 0) return null;
+    // For now, just return the first pinned item of each type
+    return pinnedItems[type][0].item_data;
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        <View style={styles.infoCard}>
-          {[
-            { label: "Dates", value: MOCK_GROUP_DATA.dates },
-            { label: "Destination", value: MOCK_GROUP_DATA.destination },
-            { label: "Join Code", value: MOCK_GROUP_DATA.joinCode },
-          ].map(({ label, value }) => (
-            <Text key={label} style={styles.infoText}>
-              <Text style={styles.infoLabel}>{label}: </Text>
-              {value}
-            </Text>
-          ))}
-        </View>
+        <LinearGradient
+          colors={[Theme.colors.lightBlueHeader, Theme.colors.white]}
+          style={styles.headerGradient}
+        >
+          <Text style={styles.groupName}>{groupData.name}</Text>
+        </LinearGradient>
+
+        <GroupInfoCard
+          dates={formatDates()}
+          destination={groupData.destination}
+          joinCode={groupData.join_code}
+        />
 
         <TopStayCard
-          stay={MOCK_GROUP_DATA.topStay}
-          onPress={() => router.push("/tabs/groups/voting")}
+          stay={getTopItem("stays")}
+          onPress={() => {
+            /* Navigate to stay details */
+          }}
         />
 
         <TopFlightCard
-          flight={MOCK_GROUP_DATA.topFlight}
-          onPress={() => router.push("/tabs/groups/voting")}
+          flight={getTopItem("flights")}
+          onPress={() => {
+            /* Navigate to flight details */
+          }}
         />
 
         <TopActivityCard
-          activity={MOCK_GROUP_DATA.topActivity}
-          onPress={() => router.push("/tabs/groups/voting")}
-          // onPress={() => handleNavigation("activitydetails")}
+          activity={getTopItem("activities")}
+          onPress={() => {
+            /* Navigate to activity details */
+          }}
         />
       </ScrollView>
     </SafeAreaView>
@@ -85,40 +132,24 @@ export default function GroupCard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Theme.colors.backgroundPrimary,
+    backgroundColor: Theme.colors.background,
   },
-  headerContainer: {
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    height: 150,
-    justifyContent: "center",
+  headerGradient: {
+    padding: 20,
+    paddingTop: 40,
+    paddingBottom: 40,
   },
   groupName: {
-    fontSize: 32,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontSize: 28,
+    fontWeight: "600",
     color: Theme.colors.white,
+    textAlign: "center",
     fontFamily: "Avenir",
   },
-  infoCard: {
-    backgroundColor: Theme.colors.white,
-    margin: 16,
-    padding: 16,
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  infoText: {
+  errorText: {
     fontSize: 16,
-    marginVertical: 4,
-    fontFamily: "Avenir",
     color: Theme.colors.textPrimary,
-  },
-  infoLabel: {
-    fontStyle: "italic",
-    color: Theme.colors.textSecondary,
+    textAlign: "center",
+    marginTop: 20,
   },
 });
