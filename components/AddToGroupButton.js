@@ -36,13 +36,11 @@ export default function AddToGroupButton({ item }) {
     try {
       const type = item.type || "stay";
 
-      // First fetch existing items for this group
       const { data: existingItems, error: fetchError } =
         await supabaseActions.getGroupPinnedItems(groupId);
 
       if (fetchError) throw fetchError;
 
-      // Check if item already exists in group
       const isDuplicate = existingItems.some(
         (existingItem) =>
           existingItem.type === type && existingItem.item_data.id === item.id
@@ -56,7 +54,6 @@ export default function AddToGroupButton({ item }) {
         return;
       }
 
-      // If not duplicate, proceed with adding
       await supabaseActions.addPinnedItem(groupId, type, item);
       setIsAdded(true);
       setShowModal(false);
@@ -93,12 +90,19 @@ export default function AddToGroupButton({ item }) {
   return (
     <>
       <TouchableOpacity
-        style={[styles.button, isAdded && styles.addedButton]}
-        onPress={() => setShowModal(true)}
-        disabled={isAdded}
+        style={[
+          styles.button,
+          isAdded ? styles.addedButton : styles.notAddedButton,
+        ]}
+        onPress={() => setShowModal(true)} // Remove the condition
       >
-        <Text style={[styles.buttonText, isAdded && styles.addedButtonText]}>
-          {isAdded ? "Added to Group" : "Add to Group"}
+        <Text
+          style={[
+            styles.buttonText,
+            isAdded ? styles.addedButtonText : styles.notAddedButtonText,
+          ]}
+        >
+          {"Add to Group"}
         </Text>
       </TouchableOpacity>
 
@@ -132,21 +136,28 @@ export default function AddToGroupButton({ item }) {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: Theme.colors.blue,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
+    borderWidth: 2,
+  },
+  notAddedButton: {
+    backgroundColor: Theme.colors.white,
+    borderColor: Theme.colors.blue,
+  },
+  addedButton: {
+    backgroundColor: Theme.colors.blue,
+    borderColor: Theme.colors.blue,
   },
   buttonText: {
-    color: "white",
     fontSize: 16,
     fontWeight: "600",
   },
-  addedButton: {
-    backgroundColor: Theme.colors.success,
+  notAddedButtonText: {
+    color: Theme.colors.blue,
   },
   addedButtonText: {
-    color: "white",
+    color: Theme.colors.white,
   },
   modalOverlay: {
     flex: 1,
