@@ -20,10 +20,11 @@ import Loading from "@/components/Loading";
 export default function GroupSummary() {
   const { groupId } = useLocalSearchParams();
   const [groupData, setGroupData] = useState(null);
+  // Change initial state to singular
   const [pinnedItems, setPinnedItems] = useState({
-    stays: [],
-    flights: [],
-    activities: [],
+    stay: [],
+    flight: [],
+    activity: [],
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -38,19 +39,24 @@ export default function GroupSummary() {
           await supabaseActions.getGroupPinnedItems(groupId);
         if (pinnedError) throw pinnedError;
 
-        // Organize pinned items by type
+        // Organize pinned items by type (using singular form)
         const organized = pinnedData.reduce(
           (acc, item) => {
-            acc[item.type] = [...(acc[item.type] || []), item];
+            const type = item.type || "stay"; // Get the type from the item
+            if (!acc[type]) {
+              acc[type] = [];
+            }
+            acc[type].push(item);
             return acc;
           },
           {
-            stays: [],
-            flights: [],
-            activities: [],
+            stay: [],
+            flight: [],
+            activity: [],
           }
         );
 
+        console.log("Organized pinned items:", organized); // For debugging
         setPinnedItems(organized);
       } catch (error) {
         console.error("Error fetching group data:", error);
@@ -83,9 +89,9 @@ export default function GroupSummary() {
   };
 
   const getTopItem = (type) => {
+    console.log("Getting top item for type:", type, pinnedItems[type]);
     if (!pinnedItems[type] || pinnedItems[type].length === 0) return null;
-    // For now, just return the first pinned item of each type
-    return pinnedItems[type][0].item_data;
+    return pinnedItems[type];
   };
 
   return (
@@ -105,21 +111,21 @@ export default function GroupSummary() {
         />
 
         <TopStayCard
-          stay={getTopItem("stays")}
+          stay={getTopItem("stay")}
           onPress={() => {
             /* Navigate to stay details */
           }}
         />
 
         <TopFlightCard
-          flight={getTopItem("flights")}
+          flight={getTopItem("flight")}
           onPress={() => {
             /* Navigate to flight details */
           }}
         />
 
         <TopActivityCard
-          activity={getTopItem("activities")}
+          activity={getTopItem("activity")}
           onPress={() => {
             /* Navigate to activity details */
           }}

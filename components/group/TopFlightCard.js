@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Theme from "@/assets/theme";
 
 export default function TopFlightSummary({ flight, onPress }) {
-  if (!flight) {
+  if (!flight || flight.length === 0) {
     return (
       <View style={styles.card}>
         <Text style={styles.title}>Top Flight</Text>
@@ -13,6 +13,8 @@ export default function TopFlightSummary({ flight, onPress }) {
     );
   }
 
+  const flightData = flight[0].item_data;
+
   return (
     <View style={styles.card}>
       <Text style={styles.title}>Top Flight</Text>
@@ -20,25 +22,21 @@ export default function TopFlightSummary({ flight, onPress }) {
         <View style={styles.flightInfo}>
           <View style={styles.airlineRow}>
             <Text style={styles.label}>Airline:</Text>
-            <Text style={styles.value}>{flight.airline}</Text>
-            <Text style={styles.price}>{flight.price}</Text>
+            <Text style={styles.value}>{flightData.source}</Text>
+            <Text style={styles.price}>{flightData.cost}</Text>
           </View>
 
           <View style={styles.routeContainer}>
-            <Text style={styles.routeText}>To Japan:</Text>
+            <Text style={styles.routeText}>{flightData.title}</Text>
             <View style={styles.routeRow}>
-              <Text style={styles.airport}>{flight.departure}</Text>
+              {/* You can add more specific flight details here if needed */}
               <MaterialCommunityIcons
                 name="airplane"
                 size={20}
                 color={Theme.colors.textSecondary}
                 style={styles.icon}
               />
-              <Text style={styles.airport}>{flight.arrival}</Text>
             </View>
-            <Text style={styles.time}>
-              {flight.departureTime} to {flight.arrivalTime}
-            </Text>
           </View>
         </View>
       </View>
@@ -55,7 +53,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 16,
     margin: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -63,12 +61,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 12,
-    textAlign: 'center',
-    fontFamily: 'Avenir',
+    textAlign: "center",
+    fontFamily: "Avenir",
     color: Theme.colors.textPrimary,
-    fontStyle: 'italic'
+    fontStyle: "italic",
   },
   content: {
     backgroundColor: Theme.colors.lightestBlue,
@@ -76,14 +74,14 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   airlineRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 12,
   },
   label: {
     fontSize: 16,
     color: Theme.colors.textSecondary,
-    fontStyle: 'italic',
+    fontStyle: "italic",
     marginRight: 8,
   },
   value: {
@@ -93,19 +91,19 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Theme.colors.textPrimary,
-    fontStyle: 'italic'
+    fontStyle: "italic",
   },
   routeText: {
     fontSize: 16,
     color: Theme.colors.textSecondary,
-    fontStyle: 'italic',
+    fontStyle: "italic",
     marginBottom: 4,
   },
   routeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
   airport: {
@@ -115,8 +113,8 @@ const styles = StyleSheet.create({
   seeMore: {
     color: Theme.colors.textPrimary,
     fontSize: 16,
-    textAlign: 'right',
+    textAlign: "right",
     marginTop: 8,
-    fontStyle: 'italic'
-  }
+    fontStyle: "italic",
+  },
 });
