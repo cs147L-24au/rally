@@ -15,6 +15,8 @@ import Loading from "@/components/Loading";
 import db from "@/database/db";
 import useSession from "@/utils/useSession";
 import { supabaseActions } from "@/utils/supabase";
+import TripPlanningCard from "@/components/TripPlanningCard";
+import TripSummaryCard from "@/components/TripSummary";
 
 export default function Profile() {
   const session = useSession();
@@ -63,19 +65,22 @@ export default function Profile() {
             Hi, {profile.full_name.split(" ")[0]}!
           </Text>
         </View>
-        {/* Travel Assistant Card */}
-        <TouchableOpacity
-          style={styles.assistantCard}
-          onPress={() => router.push("/tabs/profile/chatbot")}
-        >
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>Travel Assistant</Text>
-            <Text style={styles.cardDescription}>
-              Get personalized travel recommendations and advice
-            </Text>
-          </View>
-        </TouchableOpacity>
+  
 
+        <TripPlanningCard
+            title="Need some trip advice?"
+            buttonText="Chat with Evelyn"
+            description="Our AI chatbot assistant to give you more personalized recommendations"
+            onPress={() => router.push("/tabs/profile/chatbot")}
+          />
+        <TripSummaryCard
+            title="Our Trip Recommendation"
+            summaryText="Amsterdam is the spot right now..."
+            imageSource={require("@/assets/amsterdam.jpg")}
+            stats={[
+              { number: 125, label: "users went in the last month!" },
+            ]}
+          />
         {/* Logout Button */}
         <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
           <Text style={styles.logoutButtonText}>Log Out</Text>
@@ -95,14 +100,16 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   profileHeader: {
-    alignItems: "center",
-    marginBottom: 24,
+    flexDirection: "row",
+    alignItems: "center", 
+    marginBottom: 10,
+    alignSelf: "center",
   },
   avatar: {
-    width: 120,
-    height: 120,
+    width: 50,
+    height: 50,
     borderRadius: 60,
-    marginBottom: 12,
+    marginRight: 12, 
   },
   greeting: {
     fontSize: 24,
@@ -110,47 +117,21 @@ const styles = StyleSheet.create({
     color: Theme.colors.textPrimary,
     fontFamily: "Avenir",
   },
-  assistantCard: {
-    backgroundColor: Theme.colors.white,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardContent: {
-    alignItems: "center",
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: Theme.colors.textPrimary,
-    marginBottom: 8,
-    fontFamily: "Avenir",
-  },
-  cardDescription: {
-    fontSize: 16,
-    color: Theme.colors.textSecondary,
-    textAlign: "center",
-    fontFamily: "Avenir",
-  },
   logoutButton: {
+    alignSelf: "center",
     backgroundColor: Theme.colors.blue,
-    padding: 16,
-    borderRadius: 12,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    marginVertical: 9,
     alignItems: "center",
-    marginTop: "auto",
+    width: "50%",
   },
   logoutButtonText: {
-    color: Theme.colors.white,
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "bold",
+    color: Theme.colors.white,
     fontFamily: "Avenir",
   },
 });
+
