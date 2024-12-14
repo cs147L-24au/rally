@@ -15,8 +15,11 @@ import TopActivityCard from "@/components/group/TopActivityCard";
 import GroupInfoCard from "@/components/group/GroupInfoCard";
 import { supabaseActions } from "@/utils/supabase";
 import Loading from "@/components/Loading";
+import { useRouter } from "expo-router";
 
 export default function GroupSummary() {
+  const router = useRouter();
+
   const { groupId } = useLocalSearchParams();
   const [groupData, setGroupData] = useState(null);
   // Change initial state to singular
@@ -105,23 +108,23 @@ export default function GroupSummary() {
 
         <TopStayCard
           stay={getTopItem("stay")}
-          onPress={() => {
-            /* Navigate to stay details */
-          }}
+          onPress={() =>
+            router.push(`/tabs/groups/groupStays?groupId=${groupId}`)
+          }
         />
 
         <TopFlightCard
           flight={getTopItem("flight")}
-          onPress={() => {
-            /* Navigate to flight details */
-          }}
+          onPress={() =>
+            router.push(`/tabs/groups/groupFlights?groupId=${groupId}`)
+          }
         />
 
         <TopActivityCard
           activity={getTopItem("activity")}
-          onPress={() => {
-            /* Navigate to activity details */
-          }}
+          onPress={() =>
+            router.push(`/tabs/groups/groupActivities?groupId=${groupId}`)
+          }
         />
       </ScrollView>
     </SafeAreaView>

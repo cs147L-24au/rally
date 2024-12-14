@@ -86,6 +86,25 @@ export default function GroupsStackLayout() {
           ...GRADIENT_OPTIONS,
         })}
       />
+
+      <Stack.Screen
+        name="groupStays"
+        options={{
+          title: "Group Stays",
+        }}
+      />
+      <Stack.Screen
+        name="groupFlights"
+        options={{
+          title: "Group Flights",
+        }}
+      />
+      <Stack.Screen
+        name="groupActivities"
+        options={{
+          title: "Group Activities",
+        }}
+      />
     </Stack>
   );
 }
