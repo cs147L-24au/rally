@@ -4,8 +4,10 @@ import Theme from "@/assets/theme";
 import TripPlanningCard from "@/components/TripPlanningCard";
 import TripSummaryCard from "@/components/TripSummary";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useRouter } from "expo-router";
 
 export default function Home() {
+  const router = useRouter();
   return (
     <View style={styles.mainContainer}>
       {/* Background that extends under status bar */}
@@ -29,25 +31,20 @@ export default function Home() {
           contentContainerStyle={styles.scrollViewContent}
         >
           {/* Group Section */}
-          <Link href="/tabs/groups" asChild>
-            <TripPlanningCard
-              title="Rally the Group Chat"
-              buttonText="Create Group"
-              description="You give us who, where, and we'll give you everything else"
-            />
-          </Link>
+          <TripPlanningCard
+            title="Rally the Group Chat"
+            buttonText="Create Group"
+            description="You give us who, where, and we'll give you everything else"
+            onPress={() => router.push("/tabs/groups")}
+          />
 
           {/* Explore Section */}
-          <Link href="/tabs/explore" asChild>
-            <TripPlanningCard
-              title="Explore Your Options"
-              buttonText="Visit Explore Page"
-              description="Find flights, activities, and stays for any location you want!"
-              onPress={() => {
-                console.log("Explore page button pressed");
-              }}
-            />
-          </Link>
+          <TripPlanningCard
+            title="Explore Your Options"
+            buttonText="Visit Explore Page"
+            description="Find flights, activities, and stays for any location you want!"
+            onPress={() => router.push("/tabs/explore")}
+          />
 
           {/* Your Last Trip */}
           <TripSummaryCard
