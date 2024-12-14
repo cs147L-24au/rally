@@ -11,14 +11,13 @@ import { StatusBar } from "expo-status-bar";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { LinearGradient } from "expo-linear-gradient"; 
 import db from "@/database/db";
-
 import Theme from "@/assets/theme";
-
+import { useRouter } from "expo-router";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const router = useRouter();
   const signInWithEmail = async () => {
     setLoading(true);
     try {
@@ -90,7 +89,7 @@ export default function Login() {
           </Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity onPress={() => router.push("/signup")}>
           <Text style={styles.signUpText}>
             Don't have an account? Sign up here! 
           </Text>
