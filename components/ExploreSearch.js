@@ -247,27 +247,18 @@ const styles = StyleSheet.create({
     marginBottom: Theme.sizes.spacingMedium, // Add margin at bottom of search container
   },
   searchButton: {
-    backgroundColor: Theme.colors.blue,
-    padding: Theme.sizes.spacingSmall, // Reduced padding
-    borderRadius: 25,
+    padding: 10,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    height: 40, // Reduced height from 56 to 40
-    shadowColor: Theme.colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    borderWidth: 2,
+    backgroundColor: Theme.colors.blue,
+    borderColor: Theme.colors.blue,
   },
   searchButtonText: {
-    color: Theme.colors.white,
-    fontSize: Theme.sizes.textMedium, // Reduced font size to match smaller height
+    fontSize: 16,
     fontWeight: "600",
-    letterSpacing: 0.5,
-    fontFamily: "Avenir",
+    color: Theme.colors.white,
   },
   infoRow: {
     gap: 2,
