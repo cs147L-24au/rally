@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,17 +7,60 @@ import {
   StyleSheet,
   Modal,
   Alert,
+  FlatList,
 } from "react-native";
 import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Picker } from "@react-native-picker/picker";
 import Theme from "@/assets/theme";
+import { supabaseActions } from "@/utils/supabase";
 
 export default function ExploreItem({ title, image, source, cost, item }) {
   const router = useRouter();
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState("");
+  const [userGroups, setUserGroups] = useState([]);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  useEffect(() => {
+    fetchUserGroups();
+    checkIfBookmarked();
+  }, []);
+
+  const checkIfBookmarked = async () => {
+    try {
+      // Get all user groups
+      const { data: groups, error } = await supabaseActions.getUserGroups();
+      if (error) throw error;
+
+      // Check each group's pinned items
+      for (const group of groups) {
+        const { data: pinnedItems } = await supabaseActions.getGroupPinnedItems(
+          group.id
+        );
+        const exists = pinnedItems.some(
+          (pinnedItem) =>
+            pinnedItem.type === item.type && pinnedItem.item_data.id === item.id
+        );
+        if (exists) {
+          setIsBookmarked(true);
+          return;
+        }
+      }
+      setIsBookmarked(false);
+    } catch (error) {
+      console.error("Error checking bookmark status:", error);
+    }
+  };
+
+  const fetchUserGroups = async () => {
+    try {
+      const { data, error } = await supabaseActions.getUserGroups();
+      if (error) throw error;
+      setUserGroups(data || []);
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+      Alert.alert("Error", "Failed to fetch groups");
+    }
+  };
 
   const handleCardPress = () => {
     const route = `/tabs/explore/${item.type}Details`;
@@ -31,63 +74,50 @@ export default function ExploreItem({ title, image, source, cost, item }) {
   };
 
   const handleBookmarkPress = () => {
-    if (isBookmarked) {
-      setIsBookmarked(false);
-      Alert.alert("Removed", `Removed from ${selectedGroup} group.`);
-    } else {
-      setShowModal(true);
-    }
+    setShowModal(true);
   };
 
-  const handleConfirmGroup = () => {
-    if (!selectedGroup) {
-      Alert.alert("Error", "Please select a group first.");
-      return;
-    }
-    setIsBookmarked(true);
-    setShowModal(false);
-    Alert.alert("Success", `Added to ${selectedGroup} group.`);
-  };
+  const handleAddToGroup = async (groupId) => {
+    try {
+      // First fetch existing items for this group
+      const { data: existingItems, error: fetchError } =
+        await supabaseActions.getGroupPinnedItems(groupId);
 
-  const renderGroupPicker = () => (
-    <Modal
-      visible={showModal}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={() => setShowModal(false)}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Select Group</Text>
-            <TouchableOpacity
-              onPress={() => setShowModal(false)}
-              style={styles.doneButton}
-            >
-              <Text style={styles.doneButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-          <Picker
-            selectedValue={selectedGroup}
-            onValueChange={setSelectedGroup}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select a group" value="" />
-            <Picker.Item label="Adelfa" value="Adelfa" />
-            <Picker.Item label="Family" value="Family" />
-            <Picker.Item label="Friends" value="Friends" />
-            <Picker.Item label="Solo" value="Solo" />
-          </Picker>
-          <TouchableOpacity
-            style={styles.confirmButton}
-            onPress={handleConfirmGroup}
-          >
-            <Text style={styles.confirmButtonText}>Confirm</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
+      if (fetchError) throw fetchError;
+
+      // Check if item already exists in group
+      const isDuplicate = existingItems.some(
+        (existingItem) =>
+          existingItem.type === item.type &&
+          existingItem.item_data.id === item.id
+      );
+
+      if (isDuplicate) {
+        Alert.alert(
+          "Already Added",
+          "This item has already been added to this group."
+        );
+        setShowModal(false);
+        return;
+      }
+
+      // If not duplicate, proceed with adding
+      const { error } = await supabaseActions.addPinnedItem(
+        groupId,
+        item.type,
+        item
+      );
+
+      if (error) throw error;
+
+      setIsBookmarked(true);
+      setShowModal(false);
+      Alert.alert("Success", "Added to group successfully!");
+    } catch (error) {
+      console.error("Error adding to group:", error);
+      Alert.alert("Error", "Failed to add to group");
+    }
+  };
 
   return (
     <TouchableOpacity style={styles.card} onPress={handleCardPress}>
@@ -111,7 +141,40 @@ export default function ExploreItem({ title, image, source, cost, item }) {
           />
         </TouchableOpacity>
       </View>
-      {renderGroupPicker()}
+
+      <Modal
+        visible={showModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Add to Group</Text>
+              <TouchableOpacity
+                onPress={() => setShowModal(false)}
+                style={styles.closeButton}
+              >
+                <Text style={styles.closeButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={userGroups}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item: group }) => (
+                <TouchableOpacity
+                  style={styles.groupItem}
+                  onPress={() => handleAddToGroup(group.id)}
+                >
+                  <Text style={styles.groupName}>{group.name}</Text>
+                </TouchableOpacity>
+              )}
+              contentContainerStyle={styles.groupList}
+            />
+          </View>
+        </View>
+      </Modal>
     </TouchableOpacity>
   );
 }
@@ -179,6 +242,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: Theme.sizes.spacingLarge,
+    maxHeight: "80%",
   },
   modalHeader: {
     flexDirection: "row",
@@ -193,25 +257,25 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: Theme.colors.black,
   },
-  doneButton: {
+  closeButton: {
     padding: Theme.sizes.spacingSmall,
   },
-  doneButtonText: {
+  closeButtonText: {
     color: Theme.colors.blue,
     fontSize: Theme.sizes.textMedium,
     fontWeight: "600",
   },
-  confirmButton: {
-    backgroundColor: Theme.colors.blue,
-    paddingVertical: Theme.sizes.spacingSmall,
-    paddingHorizontal: Theme.sizes.spacingMedium,
-    borderRadius: 20,
-    alignSelf: "center",
-    marginTop: Theme.sizes.spacingSmall,
+  groupList: {
+    padding: Theme.sizes.spacingMedium,
   },
-  confirmButtonText: {
-    color: Theme.colors.white,
+  groupItem: {
+    padding: Theme.sizes.spacingMedium,
+    borderBottomWidth: 1,
+    borderBottomColor: Theme.colors.borderGray,
+  },
+  groupName: {
     fontSize: Theme.sizes.textMedium,
-    fontWeight: "600",
+    color: Theme.colors.textPrimary,
+    fontFamily: "Avenir",
   },
 });

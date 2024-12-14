@@ -34,7 +34,29 @@ export default function AddToGroupButton({ item }) {
 
   const handleAddToGroup = async (groupId) => {
     try {
-      const type = item.type || "stay"; // Default to 'stay' if not specified
+      const type = item.type || "stay";
+
+      // First fetch existing items for this group
+      const { data: existingItems, error: fetchError } =
+        await supabaseActions.getGroupPinnedItems(groupId);
+
+      if (fetchError) throw fetchError;
+
+      // Check if item already exists in group
+      const isDuplicate = existingItems.some(
+        (existingItem) =>
+          existingItem.type === type && existingItem.item_data.id === item.id
+      );
+
+      if (isDuplicate) {
+        Alert.alert(
+          "Already Added",
+          "This item has already been added to this group."
+        );
+        return;
+      }
+
+      // If not duplicate, proceed with adding
       await supabaseActions.addPinnedItem(groupId, type, item);
       setIsAdded(true);
       setShowModal(false);
